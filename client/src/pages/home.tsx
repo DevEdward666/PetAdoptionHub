@@ -1,100 +1,117 @@
 import { useState } from "react";
-import { BottomNavigation } from "@/components/ui/bottom-navigation";
 import AdoptPet from "./adopt-pet";
 import PetOwners from "./pet-owners";
 import PetShowcase from "./pet-showcase";
 import ReportCruelty from "./report-cruelty";
+import { useAppContext } from "../store/AppContext";
+import { 
+  IonPage, 
+  IonHeader, 
+  IonToolbar, 
+  IonTitle, 
+  IonContent, 
+  IonButtons, 
+  IonButton, 
+  IonIcon,
+  IonSegment,
+  IonSegmentButton,
+  IonLabel,
+  IonTabBar,
+  IonTabButton,
+  IonTabs,
+  IonRouterOutlet
+} from "@ionic/react";
+import { 
+  searchOutline, 
+  notificationsOutline, 
+  pawOutline, 
+  homeOutline, 
+  heartOutline, 
+  personOutline 
+} from 'ionicons/icons';
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState("adopt");
+  const { state } = useAppContext();
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case "adopt":
+        return <AdoptPet />;
+      case "owners":
+        return <PetOwners />;
+      case "showcase":
+        return <PetShowcase />;
+      case "report":
+        return <ReportCruelty />;
+      default:
+        return <AdoptPet />;
+    }
+  };
 
   return (
-    <div className="pb-16">
-      {/* Header */}
-      <header className="sticky top-0 bg-white z-10 shadow-sm">
-        <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-          <div className="flex items-center">
-            <i className="ri-paw-print-fill text-primary text-2xl mr-2"></i>
-            <h1 className="font-['Nunito'] font-bold text-xl">PetPals</h1>
+    <IonPage>
+      <IonHeader>
+        <IonToolbar>
+          <div className="flex items-center px-2" slot="start">
+            <IonIcon icon={pawOutline} className="text-primary text-2xl mr-2" />
+            <IonTitle>PetPals</IonTitle>
           </div>
-          <div className="flex items-center">
-            <button className="p-2 rounded-full hover:bg-[#F8F9FA]">
-              <i className="ri-search-line text-xl text-[#343A40]"></i>
-            </button>
-            <button className="p-2 rounded-full hover:bg-[#F8F9FA] ml-1">
-              <i className="ri-notification-3-line text-xl text-[#343A40]"></i>
-            </button>
-          </div>
-        </div>
+          <IonButtons slot="end">
+            <IonButton>
+              <IonIcon slot="icon-only" icon={searchOutline} />
+            </IonButton>
+            <IonButton>
+              <IonIcon slot="icon-only" icon={notificationsOutline} />
+            </IonButton>
+          </IonButtons>
+        </IonToolbar>
         
-        {/* Tab Navigation */}
-        <div className="relative border-b border-gray-200">
-          <div className="flex overflow-x-auto hide-scrollbar">
-            <button 
-              className={`px-4 py-3 font-['Nunito'] font-semibold whitespace-nowrap ${activeTab === "adopt" ? "text-primary" : "text-gray-500"}`}
-              onClick={() => setActiveTab("adopt")}
-            >
-              Adopt a Pet
-            </button>
-            <button 
-              className={`px-4 py-3 font-['Nunito'] font-semibold whitespace-nowrap ${activeTab === "owners" ? "text-primary" : "text-gray-500"}`}
-              onClick={() => setActiveTab("owners")}
-            >
-              Pet Owners
-            </button>
-            <button 
-              className={`px-4 py-3 font-['Nunito'] font-semibold whitespace-nowrap ${activeTab === "showcase" ? "text-primary" : "text-gray-500"}`}
-              onClick={() => setActiveTab("showcase")}
-            >
-              Pet Showcase
-            </button>
-            <button 
-              className={`px-4 py-3 font-['Nunito'] font-semibold whitespace-nowrap ${activeTab === "report" ? "text-primary" : "text-gray-500"}`}
-              onClick={() => setActiveTab("report")}
-            >
-              Report Cruelty
-            </button>
-          </div>
-          <div 
-            className="absolute bottom-0 left-0 h-0.5 bg-primary transition-transform duration-300 ease-in-out" 
-            style={{ 
-              width: activeTab === "adopt" ? "100px" : 
-                     activeTab === "owners" ? "95px" : 
-                     activeTab === "showcase" ? "113px" : "120px",
-              transform: `translateX(${
-                activeTab === "adopt" ? 0 : 
-                activeTab === "owners" ? 100 : 
-                activeTab === "showcase" ? 195 : 308}px)` 
-            }}
-          ></div>
-        </div>
-      </header>
+        <IonToolbar>
+          <IonSegment value={activeTab} onIonChange={e => setActiveTab(e.detail.value as string)}>
+            <IonSegmentButton value="adopt">
+              <IonLabel>Adopt a Pet</IonLabel>
+            </IonSegmentButton>
+            <IonSegmentButton value="owners">
+              <IonLabel>Pet Owners</IonLabel>
+            </IonSegmentButton>
+            <IonSegmentButton value="showcase">
+              <IonLabel>Showcase</IonLabel>
+            </IonSegmentButton>
+            <IonSegmentButton value="report">
+              <IonLabel>Report</IonLabel>
+            </IonSegmentButton>
+          </IonSegment>
+        </IonToolbar>
+      </IonHeader>
 
-      <main className="container mx-auto px-4 py-4">
-        {activeTab === "adopt" && <AdoptPet />}
-        {activeTab === "owners" && <PetOwners />}
-        {activeTab === "showcase" && <PetShowcase />}
-        {activeTab === "report" && <ReportCruelty />}
-      </main>
+      <IonContent className="ion-padding">
+        {renderContent()}
+      </IonContent>
 
-      <BottomNavigation />
-      
-      {/* Add custom styles for scrollbar hiding */}
-      <style jsx global>{`
-        .hide-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        .hide-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-        .pet-card {
-          transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .pet-card:active {
-          transform: scale(0.98);
-        }
-      `}</style>
-    </div>
+      <IonTabBar slot="bottom">
+        <IonTabButton tab="home" href="/">
+          <IonIcon icon={homeOutline} />
+          <IonLabel>Home</IonLabel>
+        </IonTabButton>
+        <IonTabButton tab="search">
+          <IonIcon icon={searchOutline} />
+          <IonLabel>Search</IonLabel>
+        </IonTabButton>
+        <IonTabButton tab="favorites">
+          <IonIcon icon={heartOutline} />
+          <IonLabel>Favorites</IonLabel>
+          {state.favorites.length > 0 && (
+            <span className="absolute top-0 right-6 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+              {state.favorites.length}
+            </span>
+          )}
+        </IonTabButton>
+        <IonTabButton tab="profile">
+          <IonIcon icon={personOutline} />
+          <IonLabel>Profile</IonLabel>
+        </IonTabButton>
+      </IonTabBar>
+    </IonPage>
   );
 }

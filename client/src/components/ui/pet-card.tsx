@@ -1,4 +1,18 @@
 import { Pet } from "@shared/schema";
+import { 
+  IonCard, 
+  IonCardContent, 
+  IonCardHeader, 
+  IonCardTitle, 
+  IonCardSubtitle,
+  IonButton,
+  IonIcon,
+  IonChip,
+  IonAvatar,
+  IonLabel,
+  IonText
+} from "@ionic/react";
+import { heartOutline, heartSharp } from "ionicons/icons";
 
 interface PetCardProps {
   pet: Pet;
@@ -9,44 +23,61 @@ interface PetCardProps {
 
 export function PetCard({ pet, onAdoptClick, onFavoriteClick, isFavorited }: PetCardProps) {
   return (
-    <div className="pet-card bg-white rounded-[12px] shadow-sm mb-4 overflow-hidden">
+    <IonCard className="pet-card mb-4 overflow-hidden w-full">
       <img 
         src={pet.imageUrl} 
         alt={`${pet.name} - ${pet.breed}`} 
         className="w-full h-[180px] object-cover"
       />
-      <div className="p-4">
-        <div className="flex justify-between items-start mb-2">
+      <IonCardHeader>
+        <div className="flex justify-between items-start">
           <div>
-            <h3 className="font-['Nunito'] font-bold text-lg">{pet.name}</h3>
-            <p className="text-sm text-gray-600">{pet.breed} • {pet.age} {pet.age === 1 ? 'year' : 'years'}</p>
+            <IonCardTitle className="font-bold">{pet.name}</IonCardTitle>
+            <IonCardSubtitle>{pet.breed} • {pet.age} {pet.age === 1 ? 'year' : 'years'}</IonCardSubtitle>
           </div>
-          <span className="bg-[#FFD166] text-[#343A40] text-xs font-semibold px-2 py-1 rounded-full">
-            {pet.status}
-          </span>
+          <IonChip color="warning">
+            <IonLabel>{pet.status}</IonLabel>
+          </IonChip>
         </div>
-        <p className="text-sm text-gray-700 mb-3">{pet.description}</p>
+      </IonCardHeader>
+      
+      <IonCardContent>
+        <IonText color="medium" className="mb-3 block">
+          {pet.description}
+        </IonText>
+        
         <div className="flex justify-between items-center">
           <div className="flex items-center">
-            <img src={pet.ownerAvatarUrl} alt={`${pet.ownerName}'s avatar`} className="w-6 h-6 rounded-full" />
-            <span className="text-xs ml-1 text-gray-600">{pet.ownerName}'s Pet</span>
+            <IonAvatar style={{ width: '24px', height: '24px' }}>
+              <img src={pet.ownerAvatarUrl} alt={`${pet.ownerName}'s avatar`} />
+            </IonAvatar>
+            <IonText color="medium" className="ml-2 text-xs">
+              {pet.ownerName}'s Pet
+            </IonText>
           </div>
+          
           <div className="flex gap-2">
-            <button 
-              className="bg-gray-100 text-gray-700 p-2 rounded-full"
+            <IonButton 
+              fill="clear" 
               onClick={() => onFavoriteClick(pet.id)}
+              className="m-0"
             >
-              <i className={`${isFavorited ? 'ri-heart-fill text-primary' : 'ri-heart-line'} text-sm`}></i>
-            </button>
-            <button 
-              className="bg-primary text-white px-3 py-1 rounded-full text-sm"
+              <IonIcon 
+                icon={isFavorited ? heartSharp : heartOutline} 
+                color={isFavorited ? "primary" : "medium"} 
+                slot="icon-only"
+              />
+            </IonButton>
+            
+            <IonButton 
+              size="small" 
               onClick={() => onAdoptClick(pet.id)}
             >
               Adopt Me
-            </button>
+            </IonButton>
           </div>
         </div>
-      </div>
-    </div>
+      </IonCardContent>
+    </IonCard>
   );
 }

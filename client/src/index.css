@@ -3,6 +3,125 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+ 
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+ 
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+ 
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+ 
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+ 
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+ 
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+ 
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+ 
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+ 
+    --ring: 215 20.2% 65.1%;
+ 
+    --radius: 0.5rem;
+    
+    /* Ionic overrides */
+    --ion-color-primary: hsl(var(--primary));
+    --ion-color-primary-rgb: 28, 36, 54;
+    --ion-color-primary-contrast: hsl(var(--primary-foreground));
+    --ion-color-primary-contrast-rgb: 255, 255, 255;
+    --ion-color-primary-shade: #1a2034;
+    --ion-color-primary-tint: #333a4d;
+    
+    --ion-color-secondary: hsl(var(--secondary));
+    --ion-color-secondary-rgb: 240, 244, 249;
+    --ion-color-secondary-contrast: hsl(var(--secondary-foreground));
+    --ion-color-secondary-contrast-rgb: 28, 36, 54;
+    --ion-color-secondary-shade: #d3d8dc;
+    --ion-color-secondary-tint: #f2f5fa;
+    
+    --ion-color-success: #2dd36f;
+    --ion-color-success-rgb: 45, 211, 111;
+    --ion-color-success-contrast: #ffffff;
+    --ion-color-success-contrast-rgb: 255, 255, 255;
+    --ion-color-success-shade: #28ba62;
+    --ion-color-success-tint: #42d77d;
+    
+    --ion-color-warning: #ffc409;
+    --ion-color-warning-rgb: 255, 196, 9;
+    --ion-color-warning-contrast: #000000;
+    --ion-color-warning-contrast-rgb: 0, 0, 0;
+    --ion-color-warning-shade: #e0ac08;
+    --ion-color-warning-tint: #ffca22;
+    
+    --ion-color-danger: hsl(var(--destructive));
+    --ion-color-danger-rgb: 235, 68, 90;
+    --ion-color-danger-contrast: hsl(var(--destructive-foreground));
+    --ion-color-danger-contrast-rgb: 255, 255, 255;
+    --ion-color-danger-shade: #cf3c4f;
+    --ion-color-danger-tint: #ed576b;
+    
+    --ion-padding: 16px;
+    --ion-margin: 16px;
+    
+    /* iOS Overrides */
+    --ion-toolbar-background: hsl(var(--background));
+    --ion-toolbar-border-color: hsl(var(--border));
+    --ion-item-background: hsl(var(--background));
+    --ion-item-border-color: hsl(var(--border));
+    --ion-tab-bar-background: hsl(var(--background));
+    --ion-tab-bar-border-color: hsl(var(--border));
+  }
+ 
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+ 
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+ 
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+ 
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+ 
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+ 
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+ 
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+ 
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+ 
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 85.7% 97.3%;
+ 
+    --ring: 217.2 32.6% 17.5%;
+    
+    /* Dark mode overrides for Ionic */
+    --ion-toolbar-background: hsl(var(--background));
+    --ion-toolbar-border-color: hsl(var(--border));
+    --ion-item-background: hsl(var(--background));
+    --ion-item-border-color: hsl(var(--border));
+    --ion-tab-bar-background: hsl(var(--background));
+    --ion-tab-bar-border-color: hsl(var(--border));
+  }
+
   * {
     @apply border-border;
   }
@@ -10,4 +129,49 @@
   body {
     @apply font-sans antialiased bg-background text-foreground;
   }
+}
+
+/* Custom Styles for Ionic Components */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.pet-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.pet-card:active {
+  transform: scale(0.98);
+}
+
+/* Ionic component customizations */
+ion-segment-button {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 600;
+}
+
+ion-content {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-top: 16px;
+  --padding-bottom: 16px;
+}
+
+ion-tab-button {
+  --color: hsl(var(--muted-foreground));
+  --color-selected: hsl(var(--primary));
+}
+
+ion-toolbar {
+  --border-width: 0 0 1px 0;
+  --border-color: hsl(var(--border));
+}
+
+ion-item {
+  --padding-start: 0;
+  --inner-padding-end: 0;
+  --background: transparent;
+  --border-color: hsl(var(--border));
 }
