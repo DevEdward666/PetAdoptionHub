@@ -7,6 +7,17 @@ import { fromZodError } from "zod-validation-error";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes for pets
+  
+  // API routes for showcase pets (non-adoptable) - Specific route first
+  app.get("/api/pets/showcase", async (req, res) => {
+    try {
+      const pets = await storage.getShowcasePets();
+      res.json(pets);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch showcase pets" });
+    }
+  });
+  
   app.get("/api/pets", async (req, res) => {
     try {
       const pets = await storage.getPets();
@@ -26,16 +37,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(pet);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch pet" });
-    }
-  });
-
-  // API routes for showcase pets (non-adoptable)
-  app.get("/api/pets/showcase", async (req, res) => {
-    try {
-      const pets = await storage.getShowcasePets();
-      res.json(pets);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch showcase pets" });
     }
   });
 
