@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { useNavigate } from "wouter";
+import { useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { AdminLogin, adminLoginSchema } from "@shared/schema";
+import { AdminLogin as AdminLoginType, adminLoginSchema } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useAdmin } from "@/store/AdminContext";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -14,11 +15,12 @@ import { IonContent, IonPage, IonIcon } from "@ionic/react";
 import { lockClosedOutline } from "ionicons/icons";
 
 export default function AdminLogin() {
-  const navigate = useNavigate();
+  const [_, setLocation] = useLocation();
+  const { login } = useAdmin();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
-  const form = useForm<AdminLogin>({
+  const form = useForm<AdminLoginType>({
     resolver: zodResolver(adminLoginSchema),
     defaultValues: {
       username: "",
@@ -27,16 +29,15 @@ export default function AdminLogin() {
   });
 
   const mutation = useMutation({
-    mutationFn: async (data: AdminLogin) => {
+    mutationFn: async (data: AdminLoginType) => {
       return apiRequest("/api/admin/login", {
         method: "POST",
         body: JSON.stringify(data)
       });
     },
     onSuccess: (data) => {
-      // Store token in localStorage
-      localStorage.setItem("adminToken", data.token);
-      localStorage.setItem("adminUser", JSON.stringify(data.admin));
+      // Use the login function from context
+      login(data.token, data.admin);
       
       toast({
         title: "Login Successful",
@@ -44,7 +45,7 @@ export default function AdminLogin() {
       });
       
       // Navigate to admin dashboard
-      navigate("/admin/dashboard");
+      setLocation("/admin/dashboard");
     },
     onError: (error) => {
       console.error("Login error:", error);
@@ -57,7 +58,7 @@ export default function AdminLogin() {
     }
   });
 
-  const onSubmit = (data: AdminLogin) => {
+  const onSubmit = (data: AdminLoginType) => {
     setIsLoading(true);
     mutation.mutate(data);
   };
@@ -120,7 +121,7 @@ export default function AdminLogin() {
             <CardFooter className="flex justify-center">
               <Button 
                 variant="link" 
-                onClick={() => navigate("/")}
+                onClick={() => setLocation("/")}
                 className="text-sm"
               >
                 Return to Main App
