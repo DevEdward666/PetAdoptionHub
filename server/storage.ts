@@ -14,6 +14,8 @@ import {
   admins as adminsSchema,
   products as productsSchema
 } from "@shared/schema";
+import { db } from "./db";
+import { eq, and, desc, asc, sql } from "drizzle-orm";
 
 // Storage interface
 export interface IStorage {
@@ -628,4 +630,186 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// Database storage implementation
+export class DatabaseStorage implements IStorage {
+  // Pets methods
+  async getPets(): Promise<Pet[]> {
+    return db.select().from(petsSchema).where(eq(petsSchema.isAdoptable, true));
+  }
+
+  async getPet(id: number): Promise<Pet | undefined> {
+    const [pet] = await db.select().from(petsSchema).where(eq(petsSchema.id, id));
+    return pet;
+  }
+
+  async getShowcasePets(): Promise<Pet[]> {
+    return db.select().from(petsSchema).where(eq(petsSchema.isAdoptable, false));
+  }
+
+  async createPet(pet: Omit<Pet, "id">): Promise<Pet> {
+    const [newPet] = await db.insert(petsSchema).values(pet).returning();
+    return newPet;
+  }
+
+  async updatePet(id: number, petUpdate: Partial<Pet>): Promise<Pet | undefined> {
+    const [updatedPet] = await db
+      .update(petsSchema)
+      .set({ ...petUpdate, updatedAt: new Date() })
+      .where(eq(petsSchema.id, id))
+      .returning();
+    return updatedPet;
+  }
+
+  async deletePet(id: number): Promise<boolean> {
+    const [deletedPet] = await db
+      .delete(petsSchema)
+      .where(eq(petsSchema.id, id))
+      .returning();
+    return !!deletedPet;
+  }
+
+  // Owners methods
+  async getOwners(): Promise<Owner[]> {
+    return db.select().from(ownersSchema);
+  }
+
+  async getPendingOwners(): Promise<Owner[]> {
+    return db.select().from(ownersSchema).where(eq(ownersSchema.isApproved, false));
+  }
+
+  async getOwner(id: number): Promise<Owner | undefined> {
+    const [owner] = await db.select().from(ownersSchema).where(eq(ownersSchema.id, id));
+    return owner;
+  }
+
+  async createOwner(owner: Omit<Owner, "id">): Promise<Owner> {
+    const ownerWithDefaults = {
+      ...owner,
+      isApproved: false
+    };
+    const [newOwner] = await db.insert(ownersSchema).values(ownerWithDefaults).returning();
+    return newOwner;
+  }
+
+  async updateOwner(id: number, ownerUpdate: Partial<Owner>): Promise<Owner | undefined> {
+    const [updatedOwner] = await db
+      .update(ownersSchema)
+      .set({ ...ownerUpdate, updatedAt: new Date() })
+      .where(eq(ownersSchema.id, id))
+      .returning();
+    return updatedOwner;
+  }
+
+  async approveOwner(id: number): Promise<Owner | undefined> {
+    const [approvedOwner] = await db
+      .update(ownersSchema)
+      .set({ isApproved: true, updatedAt: new Date() })
+      .where(eq(ownersSchema.id, id))
+      .returning();
+    return approvedOwner;
+  }
+
+  async deleteOwner(id: number): Promise<boolean> {
+    const [deletedOwner] = await db
+      .delete(ownersSchema)
+      .where(eq(ownersSchema.id, id))
+      .returning();
+    return !!deletedOwner;
+  }
+
+  // Reports methods
+  async getReports(): Promise<Report[]> {
+    return db.select().from(reportsSchema);
+  }
+
+  async getReport(id: number): Promise<Report | undefined> {
+    const [report] = await db.select().from(reportsSchema).where(eq(reportsSchema.id, id));
+    return report;
+  }
+
+  async createReport(reportData: ReportCrueltySchema): Promise<Report> {
+    const reportToInsert = {
+      ...reportData,
+      status: "submitted",
+      adminNotes: null,
+      assignedTo: null
+    };
+    const [newReport] = await db.insert(reportsSchema).values(reportToInsert).returning();
+    return newReport;
+  }
+
+  async updateReport(id: number, reportUpdate: Partial<Report>): Promise<Report | undefined> {
+    const [updatedReport] = await db
+      .update(reportsSchema)
+      .set({ ...reportUpdate, updatedAt: new Date() })
+      .where(eq(reportsSchema.id, id))
+      .returning();
+    return updatedReport;
+  }
+
+  // Admin methods
+  async getAdmins(): Promise<Admin[]> {
+    return db.select().from(adminsSchema);
+  }
+
+  async getAdmin(id: number): Promise<Admin | undefined> {
+    const [admin] = await db.select().from(adminsSchema).where(eq(adminsSchema.id, id));
+    return admin;
+  }
+
+  async getAdminByUsername(username: string): Promise<Admin | undefined> {
+    const [admin] = await db.select().from(adminsSchema).where(eq(adminsSchema.username, username));
+    return admin;
+  }
+
+  async createAdmin(adminData: InsertAdmin): Promise<Admin> {
+    const [newAdmin] = await db.insert(adminsSchema).values(adminData).returning();
+    return newAdmin;
+  }
+
+  async validateAdminLogin(credentials: AdminLogin): Promise<Admin | null> {
+    const admin = await this.getAdminByUsername(credentials.username);
+    if (!admin) return null;
+    
+    // In production, use proper password hashing and validation
+    if (admin.password === credentials.password) {
+      return admin;
+    }
+    return null;
+  }
+
+  // Product methods
+  async getProducts(): Promise<Product[]> {
+    return db.select().from(productsSchema);
+  }
+
+  async getProduct(id: number): Promise<Product | undefined> {
+    const [product] = await db.select().from(productsSchema).where(eq(productsSchema.id, id));
+    return product;
+  }
+
+  async createProduct(productData: InsertProduct): Promise<Product> {
+    const [newProduct] = await db.insert(productsSchema).values(productData).returning();
+    return newProduct;
+  }
+
+  async updateProduct(id: number, productUpdate: Partial<Product>): Promise<Product | undefined> {
+    const [updatedProduct] = await db
+      .update(productsSchema)
+      .set({ ...productUpdate, updatedAt: new Date() })
+      .where(eq(productsSchema.id, id))
+      .returning();
+    return updatedProduct;
+  }
+
+  async deleteProduct(id: number): Promise<boolean> {
+    const [deletedProduct] = await db
+      .delete(productsSchema)
+      .where(eq(productsSchema.id, id))
+      .returning();
+    return !!deletedProduct;
+  }
+}
+
+// Switch to the database implementation
+export const storage = new DatabaseStorage();
