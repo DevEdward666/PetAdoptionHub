@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, decimal } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -38,12 +38,14 @@ export const owners = pgTable("owners", {
   type: text("type").notNull(), // Pet Foster, Pet Rescuer, Pet Owner
   bio: text("bio").notNull(),
   avatarUrl: text("avatar_url").notNull(),
+  isApproved: boolean("is_approved").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const insertOwnerSchema = createInsertSchema(owners).omit({
   id: true,
+  isApproved: true,
   createdAt: true,
   updatedAt: true,
 });
@@ -57,6 +59,8 @@ export const reports = pgTable("reports", {
   contactInfo: text("contact_info"),
   anonymous: boolean("anonymous").default(false),
   status: text("status").default("submitted"), // submitted, investigating, resolved
+  adminNotes: text("admin_notes"),
+  assignedTo: integer("assigned_to"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -69,6 +73,50 @@ export const reportCrueltySchema = z.object({
   anonymous: z.boolean().default(false),
 });
 
+// Admin schema
+export const admins = pgTable("admins", {
+  id: serial("id").primaryKey(),
+  username: text("username").notNull().unique(),
+  password: text("password").notNull(),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  role: text("role").default("admin"), // admin, super_admin
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertAdminSchema = createInsertSchema(admins).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const adminLoginSchema = z.object({
+  username: z.string().min(3, "Username must be at least 3 characters"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+// Pet Products schema
+export const products = pgTable("products", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  category: text("category").notNull(), // food, toys, accessories, health
+  petType: text("pet_type").notNull(), // dog, cat, bird, small
+  price: decimal("price").notNull(),
+  imageUrl: text("image_url").notNull(),
+  stock: integer("stock").default(0),
+  isAvailable: boolean("is_available").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertProductSchema = createInsertSchema(products).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type Pet = typeof pets.$inferSelect;
 export type InsertPet = z.infer<typeof insertPetSchema>;
@@ -78,3 +126,10 @@ export type InsertOwner = z.infer<typeof insertOwnerSchema>;
 
 export type Report = typeof reports.$inferSelect;
 export type ReportCrueltySchema = z.infer<typeof reportCrueltySchema>;
+
+export type Admin = typeof admins.$inferSelect;
+export type InsertAdmin = z.infer<typeof insertAdminSchema>;
+export type AdminLogin = z.infer<typeof adminLoginSchema>;
+
+export type Product = typeof products.$inferSelect;
+export type InsertProduct = z.infer<typeof insertProductSchema>;

@@ -3,9 +3,16 @@ import {
   Owner, 
   Report, 
   ReportCrueltySchema,
+  Admin,
+  InsertAdmin,
+  AdminLogin,
+  Product,
+  InsertProduct,
   pets as petsSchema,
   owners as ownersSchema,
-  reports as reportsSchema
+  reports as reportsSchema,
+  admins as adminsSchema,
+  products as productsSchema
 } from "@shared/schema";
 
 // Storage interface
@@ -16,14 +23,36 @@ export interface IStorage {
   getShowcasePets(): Promise<Pet[]>;
   createPet(pet: Omit<Pet, "id">): Promise<Pet>;
   updatePet(id: number, pet: Partial<Pet>): Promise<Pet | undefined>;
+  deletePet(id: number): Promise<boolean>;
   
   // Owners
   getOwners(): Promise<Owner[]>;
+  getPendingOwners(): Promise<Owner[]>;
   getOwner(id: number): Promise<Owner | undefined>;
   createOwner(owner: Omit<Owner, "id">): Promise<Owner>;
+  updateOwner(id: number, owner: Partial<Owner>): Promise<Owner | undefined>;
+  approveOwner(id: number): Promise<Owner | undefined>;
+  deleteOwner(id: number): Promise<boolean>;
   
   // Reports
+  getReports(): Promise<Report[]>;
+  getReport(id: number): Promise<Report | undefined>;
   createReport(report: ReportCrueltySchema): Promise<Report>;
+  updateReport(id: number, report: Partial<Report>): Promise<Report | undefined>;
+  
+  // Admins
+  getAdmins(): Promise<Admin[]>;
+  getAdmin(id: number): Promise<Admin | undefined>;
+  getAdminByUsername(username: string): Promise<Admin | undefined>;
+  createAdmin(admin: InsertAdmin): Promise<Admin>;
+  validateAdminLogin(credentials: AdminLogin): Promise<Admin | null>;
+  
+  // Products
+  getProducts(): Promise<Product[]>;
+  getProduct(id: number): Promise<Product | undefined>;
+  createProduct(product: InsertProduct): Promise<Product>;
+  updateProduct(id: number, product: Partial<Product>): Promise<Product | undefined>;
+  deleteProduct(id: number): Promise<boolean>;
 }
 
 // In-memory storage implementation
@@ -31,19 +60,27 @@ export class MemStorage implements IStorage {
   private pets: Map<number, Pet>;
   private owners: Map<number, Owner>;
   private reports: Map<number, Report>;
+  private admins: Map<number, Admin>;
+  private products: Map<number, Product>;
   
   private petId: number;
   private ownerId: number;
   private reportId: number;
+  private adminId: number;
+  private productId: number;
 
   constructor() {
     this.pets = new Map();
     this.owners = new Map();
     this.reports = new Map();
+    this.admins = new Map();
+    this.products = new Map();
     
     this.petId = 1;
     this.ownerId = 1;
     this.reportId = 1;
+    this.adminId = 1;
+    this.productId = 1;
     
     // Initialize with sample data
     this.seedData();
@@ -75,14 +112,23 @@ export class MemStorage implements IStorage {
     const pet = this.pets.get(id);
     if (!pet) return undefined;
     
-    const updatedPet = { ...pet, ...petUpdate };
+    const updatedPet = { ...pet, ...petUpdate, updatedAt: new Date() };
     this.pets.set(id, updatedPet);
     return updatedPet;
+  }
+  
+  async deletePet(id: number): Promise<boolean> {
+    if (!this.pets.has(id)) return false;
+    return this.pets.delete(id);
   }
 
   // Owner methods
   async getOwners(): Promise<Owner[]> {
     return Array.from(this.owners.values());
+  }
+  
+  async getPendingOwners(): Promise<Owner[]> {
+    return Array.from(this.owners.values()).filter(owner => !owner.isApproved);
   }
 
   async getOwner(id: number): Promise<Owner | undefined> {
@@ -91,12 +137,49 @@ export class MemStorage implements IStorage {
 
   async createOwner(owner: Omit<Owner, "id">): Promise<Owner> {
     const id = this.ownerId++;
-    const newOwner = { ...owner, id } as Owner;
+    const newOwner = { 
+      ...owner, 
+      id,
+      isApproved: false,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    } as Owner;
     this.owners.set(id, newOwner);
     return newOwner;
   }
+  
+  async updateOwner(id: number, ownerUpdate: Partial<Owner>): Promise<Owner | undefined> {
+    const owner = this.owners.get(id);
+    if (!owner) return undefined;
+    
+    const updatedOwner = { ...owner, ...ownerUpdate, updatedAt: new Date() };
+    this.owners.set(id, updatedOwner);
+    return updatedOwner;
+  }
+  
+  async approveOwner(id: number): Promise<Owner | undefined> {
+    const owner = this.owners.get(id);
+    if (!owner) return undefined;
+    
+    const approvedOwner = { ...owner, isApproved: true, updatedAt: new Date() };
+    this.owners.set(id, approvedOwner);
+    return approvedOwner;
+  }
+  
+  async deleteOwner(id: number): Promise<boolean> {
+    if (!this.owners.has(id)) return false;
+    return this.owners.delete(id);
+  }
 
   // Report methods
+  async getReports(): Promise<Report[]> {
+    return Array.from(this.reports.values());
+  }
+  
+  async getReport(id: number): Promise<Report | undefined> {
+    return this.reports.get(id);
+  }
+  
   async createReport(reportData: ReportCrueltySchema): Promise<Report> {
     const id = this.reportId++;
     const now = new Date();
@@ -105,12 +188,100 @@ export class MemStorage implements IStorage {
       id,
       ...reportData,
       status: "submitted",
+      adminNotes: null,
+      assignedTo: null,
       createdAt: now,
       updatedAt: now
     };
     
     this.reports.set(id, report);
     return report;
+  }
+  
+  async updateReport(id: number, reportUpdate: Partial<Report>): Promise<Report | undefined> {
+    const report = this.reports.get(id);
+    if (!report) return undefined;
+    
+    const updatedReport = { ...report, ...reportUpdate, updatedAt: new Date() };
+    this.reports.set(id, updatedReport);
+    return updatedReport;
+  }
+  
+  // Admin methods
+  async getAdmins(): Promise<Admin[]> {
+    return Array.from(this.admins.values());
+  }
+  
+  async getAdmin(id: number): Promise<Admin | undefined> {
+    return this.admins.get(id);
+  }
+  
+  async getAdminByUsername(username: string): Promise<Admin | undefined> {
+    return Array.from(this.admins.values()).find(admin => admin.username === username);
+  }
+  
+  async createAdmin(adminData: InsertAdmin): Promise<Admin> {
+    const id = this.adminId++;
+    const now = new Date();
+    
+    const admin: Admin = {
+      id,
+      ...adminData,
+      createdAt: now,
+      updatedAt: now
+    };
+    
+    this.admins.set(id, admin);
+    return admin;
+  }
+  
+  async validateAdminLogin(credentials: AdminLogin): Promise<Admin | null> {
+    const admin = await this.getAdminByUsername(credentials.username);
+    if (!admin) return null;
+    
+    // In production, use proper password hashing and validation
+    if (admin.password === credentials.password) {
+      return admin;
+    }
+    return null;
+  }
+  
+  // Product methods
+  async getProducts(): Promise<Product[]> {
+    return Array.from(this.products.values());
+  }
+  
+  async getProduct(id: number): Promise<Product | undefined> {
+    return this.products.get(id);
+  }
+  
+  async createProduct(productData: InsertProduct): Promise<Product> {
+    const id = this.productId++;
+    const now = new Date();
+    
+    const product: Product = {
+      id,
+      ...productData,
+      createdAt: now,
+      updatedAt: now
+    };
+    
+    this.products.set(id, product);
+    return product;
+  }
+  
+  async updateProduct(id: number, productUpdate: Partial<Product>): Promise<Product | undefined> {
+    const product = this.products.get(id);
+    if (!product) return undefined;
+    
+    const updatedProduct = { ...product, ...productUpdate, updatedAt: new Date() };
+    this.products.set(id, updatedProduct);
+    return updatedProduct;
+  }
+  
+  async deleteProduct(id: number): Promise<boolean> {
+    if (!this.products.has(id)) return false;
+    return this.products.delete(id);
   }
 
   // Seed with sample data
@@ -123,6 +294,7 @@ export class MemStorage implements IStorage {
       type: "Pet Foster",
       bio: "I love fostering pets and helping them find their forever homes. Currently have 2 dogs and 1 cat available for adoption.",
       avatarUrl: "https://randomuser.me/api/portraits/women/62.jpg",
+      isApproved: true,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -134,6 +306,7 @@ export class MemStorage implements IStorage {
       type: "Pet Rescuer",
       bio: "Rescuing animals is my passion. I specialize in rehabilitating cats and preparing them for their new families.",
       avatarUrl: "https://randomuser.me/api/portraits/men/42.jpg",
+      isApproved: true,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -145,6 +318,20 @@ export class MemStorage implements IStorage {
       type: "Pet Owner",
       bio: "Animal lover with a passion for dogs. I train and care for dogs of all breeds and help them find loving homes.",
       avatarUrl: "https://randomuser.me/api/portraits/women/32.jpg",
+      isApproved: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    
+    // Add a pending owner for testing
+    const michaelOwner: Owner = {
+      id: this.ownerId++,
+      name: "Michael Brown",
+      email: "michael@example.com",
+      type: "Pet Owner",
+      bio: "New to pet adoption, looking to add a furry friend to my family. Interested in small dogs.",
+      avatarUrl: "https://randomuser.me/api/portraits/men/55.jpg",
+      isApproved: false,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -152,6 +339,7 @@ export class MemStorage implements IStorage {
     this.owners.set(sarahOwner.id, sarahOwner);
     this.owners.set(markOwner.id, markOwner);
     this.owners.set(jessicaOwner.id, jessicaOwner);
+    this.owners.set(michaelOwner.id, michaelOwner);
     
     // Create adoptable pets
     const maxPet: Pet = {
@@ -344,6 +532,99 @@ export class MemStorage implements IStorage {
     this.pets.set(whiskersPet.id, whiskersPet);
     this.pets.set(oreoPet.id, oreoPet);
     this.pets.set(thumperPet.id, thumperPet);
+    
+    // Create sample reports
+    const report1: Report = {
+      id: this.reportId++,
+      type: "Neglect",
+      location: "123 Main St, Anytown",
+      description: "Dog left outside in extreme heat without water or shelter.",
+      contactInfo: "john@example.com",
+      anonymous: false,
+      status: "submitted",
+      adminNotes: null,
+      assignedTo: null,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    const report2: Report = {
+      id: this.reportId++,
+      type: "Abuse",
+      location: "456 Park Ave, Cityville",
+      description: "Multiple cats in poor condition, appear to be malnourished.",
+      contactInfo: null,
+      anonymous: true,
+      status: "investigating",
+      adminNotes: "Assigned to animal control for investigation.",
+      assignedTo: null,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    this.reports.set(report1.id, report1);
+    this.reports.set(report2.id, report2);
+    
+    // Create admin user
+    const admin: Admin = {
+      id: this.adminId++,
+      username: "admin",
+      password: "password123", // In production, use hashed passwords
+      name: "Admin User",
+      email: "admin@petshop.com",
+      role: "admin",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    this.admins.set(admin.id, admin);
+    
+    // Create sample products
+    const product1: Product = {
+      id: this.productId++,
+      name: "Premium Dog Food",
+      description: "High-quality dog food with balanced nutrition for adult dogs.",
+      category: "food",
+      petType: "dog",
+      price: "29.99",
+      imageUrl: "https://images.unsplash.com/photo-1589924691995-400dc9ecc119?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&q=80",
+      stock: 50,
+      isAvailable: true,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    const product2: Product = {
+      id: this.productId++,
+      name: "Interactive Cat Toy",
+      description: "Automatic laser toy to keep your cat entertained for hours.",
+      category: "toys",
+      petType: "cat",
+      price: "19.99",
+      imageUrl: "https://images.unsplash.com/photo-1526336024174-e58f5cdd8e13?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&q=80",
+      stock: 30,
+      isAvailable: true,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    const product3: Product = {
+      id: this.productId++,
+      name: "Pet Carrier",
+      description: "Comfortable and secure carrier for small to medium pets.",
+      category: "accessories",
+      petType: "small",
+      price: "34.99",
+      imageUrl: "https://images.unsplash.com/photo-1597843797221-e34b4ff3b3d8?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&q=80",
+      stock: 15,
+      isAvailable: true,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    this.products.set(product1.id, product1);
+    this.products.set(product2.id, product2);
+    this.products.set(product3.id, product3);
   }
 }
 
