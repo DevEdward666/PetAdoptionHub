@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useLocation } from 'wouter';
+import { useLocation, useRoute } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
 import { Admin } from '@shared/schema';
 
@@ -17,7 +17,7 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
   const [admin, setAdmin] = useState<Admin | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const { toast } = useToast();
 
   // Initialize state from localStorage on mount
@@ -49,9 +49,9 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
         description: 'Please log in to access the admin area.',
         variant: 'destructive',
       });
-      window.location.href = '/admin/login';
+      // setLocation('/admin/login');
     }
-  }, [location, isAuthenticated, toast]);
+  }, [location, isAuthenticated, toast, setLocation]);
 
   const login = (newToken: string, newAdmin: Admin) => {
     setToken(newToken);
@@ -72,8 +72,8 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('adminToken');
     localStorage.removeItem('adminUser');
     
-    // Redirect to login
-    window.location.href = '/admin/login';
+    // Redirect to login using wouter
+    setLocation('/admin/login');
     
     toast({
       title: 'Logged Out',

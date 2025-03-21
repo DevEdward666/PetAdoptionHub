@@ -5,6 +5,11 @@ const getAdminToken = (): string | null => {
   return localStorage.getItem('adminToken');
 };
 
+// Helper function to get user token from localStorage
+const getUserToken = (): string | null => {
+  return localStorage.getItem('userToken');
+};
+
 // Function to make authenticated admin API requests
 export const adminApiRequest = async <T = any>(
   endpoint: string,
@@ -17,16 +22,44 @@ export const adminApiRequest = async <T = any>(
   }
   
   // Add authorization header
-  const headers = {
-    ...options.headers,
+  const headers: Record<string, string> = {
+    ...(options.headers as Record<string, string> || {}),
     Authorization: `Bearer ${token}`
   };
   
   // Make the API request with the authorization header
-  return apiRequest(endpoint, {
-    ...options,
+  const response = await apiRequest(
+    options.method || 'GET',
+    endpoint,
+    options.body ? JSON.parse(options.body as string) : undefined,
     headers
-  });
+  );
+  return response.json();
+};
+
+export const userApiRequest = async <T = any>(
+  endpoint: string,
+  options: RequestInit = {}
+): Promise<T> => {
+  const token = getUserToken();
+  
+  // Add authorization header if token exists
+  const headers: Record<string, string> = {
+    ...(options.headers as Record<string, string> || {}),
+  };
+  
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+  
+  // Make the API request with the authorization header
+  const response = await apiRequest(
+    options.method || 'GET',
+    endpoint,
+    options.body ? JSON.parse(options.body as string) : undefined,
+    headers
+  );
+  return response.json();
 };
 
 // Dashboard stats
@@ -68,12 +101,6 @@ export const fetchPendingOwners = async () => {
   return adminApiRequest('/api/admin/owners/pending');
 };
 
-export const createOwner = async (ownerData: any) => {
-  return adminApiRequest('/api/admin/owners', {
-    method: 'POST',
-    body: JSON.stringify(ownerData)
-  });
-};
 
 export const updateOwner = async (id: number, ownerData: any) => {
   return adminApiRequest(`/api/admin/owners/${id}`, {
@@ -122,6 +149,13 @@ export const createAdmin = async (adminData: any) => {
   });
 };
 
+export const createOwner = async (ownerData: any) => {
+  return userApiRequest('api/register/owners',{
+    method:'POST',
+    body: JSON.stringify(ownerData)
+  }
+  );
+};
 // Products management
 export const fetchProducts = async () => {
   return adminApiRequest('/api/admin/products');

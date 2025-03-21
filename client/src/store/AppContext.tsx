@@ -1,6 +1,8 @@
-import React, { createContext, useContext, useReducer, ReactNode } from 'react';
-import { Pet, Owner, Report } from '@shared/schema';
+import React, { createContext, useContext, useReducer, ReactNode, useEffect, useState } from 'react';
+import { Pet, Owner, Report, Admin } from '@shared/schema';
 import { apiRequest } from '@/lib/queryClient';
+import { useToast } from '@/hooks/use-toast';
+import { useLocation } from 'wouter';
 
 // Define state types
 interface AppState {
@@ -92,6 +94,11 @@ interface AppContextValue {
   getFilteredPets: () => Pet[];
   getFilteredOwners: (searchTerm: string) => Owner[];
   getPetsForOwner: (ownerId: number) => Pet[];
+  login: (token: string, user: Owner) => void;
+  logout: () => void;
+  user: Owner | null;
+  token: string | null;
+  isAuthenticated: boolean;
 }
 
 const AppContext = createContext<AppContextValue | undefined>(undefined);
@@ -103,7 +110,11 @@ interface AppProviderProps {
 
 export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(appReducer, initialState);
-
+  const [location, setLocation] = useLocation();
+  const [token, setToken] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [user, setUser] = useState<Owner | null>(null);
+  const { toast } = useToast();
   // Fetch pets
   const fetchPets = async () => {
     try {
@@ -188,6 +199,66 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     return state.pets.filter(pet => pet.ownerId === ownerId);
   };
 
+  // Initialize state from localStorage on mount
+  useEffect(() => {
+    const storedToken = localStorage.getItem('PetuserToken');
+    const storedAdmin = localStorage.getItem('PetUser');
+
+    if (storedToken && storedAdmin) {
+      try {
+        const parsedAdmin = JSON.parse(storedAdmin);
+        setToken(storedToken);
+        setUser(parsedAdmin);
+        setIsAuthenticated(true);
+      } catch (error) {
+        console.error('Failed to parse admin user data', error);
+        // Clear invalid data
+        localStorage.removeItem('PetuserToken');
+        localStorage.removeItem('PetUser');
+      }
+    }
+  }, []);
+
+  // Route protection logic
+  useEffect(() => {
+    // Redirect to login if trying to access protected routes without authentication
+    // if (!isAuthenticated && location !== '/' && !location.includes('/owner/login')) {
+    //   toast({
+    //     title: 'Authentication Required',
+    //     description: 'Please log in to access the app.',
+    //     variant: 'destructive',
+    //   });
+    //   setLocation('/');
+    // }
+  }, [location, isAuthenticated, toast, setLocation]);
+
+  const login = (newToken: string, newUser: Owner) => {
+    setToken(newToken);
+    setUser(newUser);
+    setIsAuthenticated(true);
+    
+    // Store in localStorage
+    localStorage.setItem('PetuserToken', newToken);
+    localStorage.setItem('PetUser', JSON.stringify(newUser));
+  };
+
+  const logout = () => {
+    setToken(null);
+    setUser(null);
+    setIsAuthenticated(false);
+    
+    // Remove from localStorage
+    localStorage.removeItem('PetuserToken');
+    localStorage.removeItem('PetUser');
+    
+    // Redirect to login using wouter
+    setLocation('/admin/login');
+    
+    toast({
+      title: 'Logged Out',
+      description: 'You have been successfully logged out.',
+    });
+  };
   // Context value
   const value: AppContextValue = {
     state,
@@ -200,7 +271,12 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     submitReport,
     getFilteredPets,
     getFilteredOwners,
-    getPetsForOwner
+    getPetsForOwner,
+    login,
+    logout,
+    user, 
+    token, 
+    isAuthenticated, 
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

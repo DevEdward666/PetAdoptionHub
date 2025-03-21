@@ -151,9 +151,8 @@ export default function AdminProducts() {
       });
     }
   };
-
   // Filter and search logic
-  const filteredProducts = products.filter((product) => {
+  const filteredProducts = products.filter((product: Product) => {
     // Apply category filter
     const categoryMatch = filter === 'all' || product.category === filter;
     
@@ -238,7 +237,7 @@ export default function AdminProducts() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredProducts.map((product) => (
+                    {filteredProducts.map((product: Product) => (
                       <TableRow key={product.id}>
                         <TableCell className="font-medium">
                           <div className="flex items-center space-x-2">
@@ -261,17 +260,17 @@ export default function AdminProducts() {
                         <TableCell className="capitalize">{product.petType}</TableCell>
                         <TableCell>${product.price}</TableCell>
                         <TableCell>
-                          {product.stock > 10 ? (
-                            <span>{product.stock}</span>
-                          ) : product.stock > 0 ? (
-                            <Badge variant="warning">Low: {product.stock}</Badge>
+                          {product.stock ?? 0 > 10 ? (
+                            <span>{product.stock ?? 0}</span>
+                          ) : (product.stock ?? 0) > 0 ? (
+                            <Badge variant="secondary">Low: {product.stock ?? 0}</Badge>
                           ) : (
                             <Badge variant="destructive">Out of stock</Badge>
                           )}
                         </TableCell>
                         <TableCell>
                           <Badge 
-                            variant={product.isAvailable ? "success" : "destructive"}
+                            variant={product.isAvailable ? "default" : "destructive"}
                           >
                             {product.isAvailable ? "Available" : "Unavailable"}
                           </Badge>
@@ -349,7 +348,7 @@ export default function AdminProducts() {
                   <label className="text-sm font-medium">Stock</label>
                   <Input 
                     type="number" 
-                    defaultValue={selectedProduct.stock} 
+                    defaultValue={selectedProduct.stock ?? 0} 
                     onChange={handleStockChange}
                   />
                 </div>

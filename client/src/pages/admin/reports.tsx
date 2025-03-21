@@ -114,9 +114,8 @@ export default function AdminReports() {
       });
     }
   };
-
   // Filter reports by status
-  const filteredReports = reports.filter((report) => {
+  const filteredReports = reports.filter((report: Report) => {
     return filter === 'all' || report.status === filter;
   });
 
@@ -187,7 +186,7 @@ export default function AdminReports() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredReports.map((report) => (
+                    {filteredReports.map((report: Report) => (
                       <TableRow key={report.id}>
                         <TableCell className="font-medium">#{report.id}</TableCell>
                         <TableCell className="capitalize">{report.type}</TableCell>
@@ -203,7 +202,7 @@ export default function AdminReports() {
                             : 'Unknown'}
                         </TableCell>
                         <TableCell>
-                          <Badge variant={getStatusBadgeVariant(report.status)}>
+                          <Badge variant="outline">
                             {report.status}
                           </Badge>
                         </TableCell>
@@ -289,7 +288,7 @@ export default function AdminReports() {
                 <div>
                   <h3 className="text-sm font-medium text-muted-foreground mb-1">Current Status</h3>
                   <Select 
-                    defaultValue={selectedReport.status}
+                    defaultValue={selectedReport.status || undefined}
                     onValueChange={handleStatusChange}
                   >
                     <SelectTrigger>

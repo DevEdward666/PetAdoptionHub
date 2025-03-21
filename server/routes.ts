@@ -7,17 +7,23 @@ import {
   insertAdminSchema,
   insertPetSchema,
   insertOwnerSchema,
-  insertProductSchema
+  insertProductSchema,
+  userLoginSchema
 } from "@shared/schema";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 
 // Admin authentication middleware
 const authenticateAdmin = async (req: Request, res: Response, next: NextFunction) => {
-  const token = req.headers.authorization?.split(' ')[1];
-  
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).json({ message: "Authorization header is required" });
+  }
+
+  // Extract token from "Bearer <token>" format
+  const token = authHeader.split(' ')[1];
   if (!token) {
-    return res.status(401).json({ message: "Authorization token is required" });
+    return res.status(401).json({ message: "Invalid authorization header format" });
   }
   
   try {
@@ -42,7 +48,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // --------------------------------
   // Public API Routes
   // --------------------------------
-  
+  app.post("/api/owner/login", async (req, res) => {
+    try {
+      const credentials = userLoginSchema.parse(req.body);
+      const user = await storage.validateUserLogin(credentials);
+      
+      if (!user) {
+        return res.status(401).json({ message: "Invalid username or password" });
+      }
+      
+      // In a real app, use proper JWT token generation
+      // For this example, we'll use a Base64 encoded username as token
+      const token = Buffer.from(user.email).toString('base64');
+      
+      res.json({
+        message: "Login successful",
+        token,
+        user: {
+          id: user.id,
+          username: user.email,
+          name: user.name,
+          email: user.email,
+        }
+      });
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const validationError = fromZodError(error);
+        return res.status(400).json({ message: validationError.message });
+      }
+      res.status(500).json({ message: "Login failed" });
+    }
+  });
   // API routes for pets
   // API routes for showcase pets (non-adoptable) - Specific route first
   app.get("/api/pets/showcase", async (req, res) => {
@@ -215,7 +251,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/admin/pets", authenticateAdmin, async (req, res) => {
     try {
       const petData = insertPetSchema.parse(req.body);
-      const pet = await storage.createPet(petData);
+      const pet = await storage.createPet({
+        ...petData,
+        likes: 0,
+        isRecent: false,
+        isFeatured: false,
+        createdAt: null,
+        updatedAt: null
+      });
       res.status(201).json(pet);
     } catch (error) {
       if (error instanceof ZodError) {
@@ -275,11 +318,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch pending owners" });
     }
   });
-  
-  app.post("/api/admin/owners", authenticateAdmin, async (req, res) => {
+  app.post("/api/register/owners", async (req, res) => {
     try {
       const ownerData = insertOwnerSchema.parse(req.body);
-      const owner = await storage.createOwner(ownerData);
+      const owner = await storage.registerOwner({
+        ...ownerData,
+        isApproved: false,
+        createdAt: null,
+        updatedAt: null
+      });
       res.status(201).json(owner);
     } catch (error) {
       if (error instanceof ZodError) {
@@ -289,6 +336,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to create owner" });
     }
   });
+  // app.post("/api/admin/owners", authenticateAdmin, async (req, res) => {
+  //   try {
+  //     const ownerData = insertOwnerSchema.parse(req.body);
+  //     const owner = await storage.createOwner({
+  //       ...ownerData,
+  //       isApproved: false,
+  //       createdAt: null,
+  //       updatedAt: null
+  //     });
+  //     res.status(201).json(owner);
+  //   } catch (error) {
+  //     if (error instanceof ZodError) {
+  //       const validationError = fromZodError(error);
+  //       return res.status(400).json({ message: validationError.message });
+  //     }
+  //     res.status(500).json({ message: "Failed to create owner" });
+  //   }
+  // });
   
   app.put("/api/admin/owners/:id", authenticateAdmin, async (req, res) => {
     try {

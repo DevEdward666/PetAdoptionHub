@@ -38,6 +38,7 @@ export const owners = pgTable("owners", {
   type: text("type").notNull(), // Pet Foster, Pet Rescuer, Pet Owner
   bio: text("bio").notNull(),
   avatarUrl: text("avatar_url").notNull(),
+  password: text("password").notNull(),
   isApproved: boolean("is_approved").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -90,12 +91,20 @@ export const insertAdminSchema = createInsertSchema(admins).omit({
   createdAt: true,
   updatedAt: true,
 });
+export const insertUserchema = createInsertSchema(owners).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
 
 export const adminLoginSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
-
+export const userLoginSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
 // Pet Products schema
 export const products = pgTable("products", {
   id: serial("id").primaryKey(),
@@ -122,7 +131,8 @@ export type Pet = typeof pets.$inferSelect;
 export type InsertPet = z.infer<typeof insertPetSchema>;
 
 export type Owner = typeof owners.$inferSelect;
-export type InsertOwner = z.infer<typeof insertOwnerSchema>;
+export type InsertOwner = z.infer<typeof insertUserchema>;
+export type UserLogin = z.infer<typeof userLoginSchema>;
 
 export type Report = typeof reports.$inferSelect;
 export type ReportCrueltySchema = z.infer<typeof reportCrueltySchema>;

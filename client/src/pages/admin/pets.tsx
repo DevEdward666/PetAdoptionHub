@@ -158,7 +158,7 @@ export default function AdminPets() {
   };
 
   // Filter and search logic
-  const filteredPets = allPets.filter((pet) => {
+  const filteredPets = allPets.filter((pet: Pet) => {
     // Apply type filter
     const typeMatch = filter === 'all' || pet.type === filter;
     
@@ -238,7 +238,7 @@ export default function AdminPets() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredPets.map((pet) => (
+                    {filteredPets.map((pet: Pet) => (
                       <TableRow key={pet.id}>
                         <TableCell className="font-medium">
                           <div className="flex items-center space-x-2">
@@ -263,9 +263,9 @@ export default function AdminPets() {
                               pet.status === 'Available' 
                                 ? 'default' 
                                 : pet.status === 'Adopted' 
-                                  ? 'success' 
+                                  ? 'secondary' 
                                   : pet.status === 'Pending' 
-                                    ? 'warning'
+                                    ? 'outline'
                                     : 'outline'
                             }
                           >

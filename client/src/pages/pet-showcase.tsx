@@ -30,7 +30,7 @@ export default function PetShowcase() {
   // Filter pets based on selected filter
   const filteredPets = showcasePets?.filter(pet => {
     if (filter === "all") return true;
-    if (filter === "mostLiked") return pet.likes > 150;
+    if (filter === "mostLiked") return pet.likes ? pet.likes > 150 : false;
     if (filter === "recent") return pet.isRecent;
     if (filter === "featured") return pet.isFeatured;
     return true;

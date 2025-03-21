@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { AdminLogin as AdminLoginType, adminLoginSchema, Admin } from "@shared/schema";
+import {  Owner, userLoginSchema, UserLogin as UserLoginType} from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAdmin } from "@/store/AdminContext";
@@ -13,42 +13,43 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { IonContent, IonPage, IonIcon } from "@ionic/react";
 import { lockClosedOutline } from "ionicons/icons";
+import { useAppContext } from "@/store/AppContext";
 
 interface LoginResponse {
   token: string;
-  admin: Admin;
+  user: Owner;
 }
 
-export default function AdminLogin() {
+export default function UserLoginPage() {
   const [_, setLocation] = useLocation();
-  const { login } = useAdmin();
+  const { login } = useAppContext();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
-  const form = useForm<AdminLoginType>({
-    resolver: zodResolver(adminLoginSchema),
+  const form = useForm<UserLoginType>({
+    resolver: zodResolver(userLoginSchema),
     defaultValues: {
-      username: "",
+      email: "",
       password: ""
     }
   });
 
   const mutation = useMutation({
-    mutationFn: async (data: AdminLoginType) => {
-      const response = await apiRequest("POST", "/api/admin/login", data);
+    mutationFn: async (data: UserLoginType) => {
+      const response = await apiRequest("POST", "/api/owner/login", data);
       return response.json() as Promise<LoginResponse>;
     },
     onSuccess: (data) => {
       // Use the login function from context
-      login(data.token, data.admin);
+      login(data.token, data.user);
       
       toast({
         title: "Login Successful",
-        description: "Welcome to the admin dashboard."
+        description: "Welcome back!"
       });
       
       // Navigate to admin dashboard
-      setLocation("/admin/dashboard");
+      setLocation("/home/main");
     },
     onError: (error) => {
       console.error("Login error:", error);
@@ -61,7 +62,7 @@ export default function AdminLogin() {
     }
   });
 
-  const onSubmit = (data: AdminLoginType) => {
+  const onSubmit = (data: UserLoginType) => {
     setIsLoading(true);
     mutation.mutate(data);
   };
@@ -77,22 +78,22 @@ export default function AdminLogin() {
                   <IonIcon icon={lockClosedOutline} className="w-6 h-6 text-white" />
                 </div>
               </div>
-              <CardTitle className="text-2xl text-center font-bold">Admin Login</CardTitle>
-              <CardDescription className="text-center">
+              <CardTitle className="text-2xl text-center font-bold">Login</CardTitle>
+              {/* <CardDescription className="text-center">
                 Enter your credentials to access the admin dashboard
-              </CardDescription>
+              </CardDescription> */}
             </CardHeader>
             <CardContent>
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                   <FormField
                     control={form.control}
-                    name="username"
+                    name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Username</FormLabel>
+                        <FormLabel>Email</FormLabel>
                         <FormControl>
-                          <Input placeholder="admin" {...field} />
+                          <Input placeholder="user@example.com" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -120,6 +121,13 @@ export default function AdminLogin() {
                   </Button>
                 </form>
               </Form>
+              <Button 
+                variant="link" 
+                onClick={() => setLocation("/register")}
+                className="w-full"
+              >
+                Register
+              </Button>
             </CardContent>
             <CardFooter className="flex justify-center">
               <Button 

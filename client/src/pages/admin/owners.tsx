@@ -164,7 +164,7 @@ export default function AdminOwners() {
               <TableCell>{owner.type}</TableCell>
               <TableCell>{owner.email}</TableCell>
               <TableCell>
-                <Badge variant={owner.isApproved ? "success" : "warning"}>
+                <Badge variant={owner.isApproved ? "default" : "secondary"}>
                   {owner.isApproved ? "Approved" : "Pending"}
                 </Badge>
               </TableCell>
@@ -294,7 +294,7 @@ export default function AdminOwners() {
                 <div>
                   <span className="text-muted-foreground">Status:</span>
                   <p>
-                    <Badge variant={selectedOwner.isApproved ? "success" : "warning"}>
+                    <Badge variant={selectedOwner.isApproved ? "default" : "secondary"}>
                       {selectedOwner.isApproved ? "Approved" : "Pending"}
                     </Badge>
                   </p>
@@ -308,7 +308,9 @@ export default function AdminOwners() {
               
               <div>
                 <span className="text-muted-foreground text-sm">Joined on:</span>
-                <p className="mt-1">{new Date(selectedOwner.createdAt).toLocaleDateString()}</p>
+                <p className="mt-1">
+                  {selectedOwner.createdAt ? new Date(selectedOwner.createdAt).toLocaleDateString() : 'N/A'}
+                </p>
               </div>
             </div>
             <DialogFooter className="flex justify-between">

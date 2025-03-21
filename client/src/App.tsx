@@ -1,10 +1,11 @@
-import { IonApp } from '@ionic/react';
+import { IonApp, IonTabs, IonRouterOutlet } from '@ionic/react';
 import { Route, Switch } from 'wouter';
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import { useEffect } from 'react';
 import { useAppContext } from './store/AppContext';
 import { AdminProvider } from './store/AdminContext';
+import TabBar from './components/TabBar';
 
 // Admin pages
 import AdminLogin from "@/pages/admin/login";
@@ -14,6 +15,9 @@ import AdminPets from "@/pages/admin/pets";
 import AdminReports from "@/pages/admin/reports";
 import AdminProducts from "@/pages/admin/products";
 import AdminUsers from "@/pages/admin/admins";
+import UserLogin from './pages/login';
+import Profile from './pages/profile';
+import Register from './pages/register';
 
 function App() {
   const { fetchPets, fetchOwners, fetchShowcasePets } = useAppContext();
@@ -29,11 +33,24 @@ function App() {
     <IonApp>
       <AdminProvider>
         <Switch>
-          {/* Main App Routes */}
-          <Route path="/" component={Home} />
-          
-          {/* Admin Routes */}
+          {/* Auth Routes */}
+          <Route path="/" component={UserLogin} />
           <Route path="/admin/login" component={AdminLogin} />
+          <Route path="/register" component={Register} />
+          {/* Main App Routes with TabBar */}
+          <Route path="/home/:rest*">
+            <IonTabs>
+              <IonRouterOutlet>
+                <Route path="/home/main" component={Home} />
+                <Route path="/home/profile" component={Profile} />
+                <Route path="/home/pets" component={Home} />
+                <Route path="/home/favorites" component={Home} />
+              </IonRouterOutlet>
+              <TabBar />
+            </IonTabs>
+          </Route>
+
+          {/* Admin Routes */}
           <Route path="/admin/dashboard" component={AdminDashboard} />
           <Route path="/admin/owners" component={AdminOwners} />
           <Route path="/admin/pets" component={AdminPets} />

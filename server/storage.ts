@@ -12,7 +12,9 @@ import {
   owners as ownersSchema,
   reports as reportsSchema,
   admins as adminsSchema,
-  products as productsSchema
+  products as productsSchema,
+  UserLogin,
+  InsertOwner
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, asc, sql } from "drizzle-orm";
@@ -31,7 +33,8 @@ export interface IStorage {
   getOwners(): Promise<Owner[]>;
   getPendingOwners(): Promise<Owner[]>;
   getOwner(id: number): Promise<Owner | undefined>;
-  createOwner(owner: Omit<Owner, "id">): Promise<Owner>;
+  // createOwner(owner: Omit<Owner, "id">): Promise<Owner>;
+  registerOwner(owner: Omit<Owner, "id">): Promise<Owner>;
   updateOwner(id: number, owner: Partial<Owner>): Promise<Owner | undefined>;
   approveOwner(id: number): Promise<Owner | undefined>;
   deleteOwner(id: number): Promise<boolean>;
@@ -48,7 +51,7 @@ export interface IStorage {
   getAdminByUsername(username: string): Promise<Admin | undefined>;
   createAdmin(admin: InsertAdmin): Promise<Admin>;
   validateAdminLogin(credentials: AdminLogin): Promise<Admin | null>;
-  
+  validateUserLogin(credentials: UserLogin): Promise<Owner | null>;
   // Products
   getProducts(): Promise<Product[]>;
   getProduct(id: number): Promise<Product | undefined>;
@@ -87,6 +90,18 @@ export class MemStorage implements IStorage {
     // Initialize with sample data
     this.seedData();
   }
+  // createOwner(owner: Omit<Owner, "id">): Promise<Owner> {
+  //   const id = this.ownerId++;
+  //   const newOwner = { 
+  //     ...owner, 
+  //     id,
+  //     isApproved: false,
+  //     createdAt: new Date(),
+  //     updatedAt: new Date()
+  //   } as Owner;
+  //   this.owners.set(id, newOwner);
+  //   return newOwner;
+  // }
 
   // Pet methods
   async getPets(): Promise<Pet[]> {
@@ -137,7 +152,7 @@ export class MemStorage implements IStorage {
     return this.owners.get(id);
   }
 
-  async createOwner(owner: Omit<Owner, "id">): Promise<Owner> {
+  async registerOwner(owner:Omit<Owner, "id">): Promise<Owner> {
     const id = this.ownerId++;
     const newOwner = { 
       ...owner, 
@@ -189,6 +204,7 @@ export class MemStorage implements IStorage {
     const report: Report = {
       id,
       ...reportData,
+      contactInfo: reportData.contactInfo ?? null,
       status: "submitted",
       adminNotes: null,
       assignedTo: null,
@@ -221,7 +237,9 @@ export class MemStorage implements IStorage {
   async getAdminByUsername(username: string): Promise<Admin | undefined> {
     return Array.from(this.admins.values()).find(admin => admin.username === username);
   }
-  
+  async getUserByEmail(email: string): Promise<Owner | undefined> {
+    return Array.from(this.owners.values()).find(owner => owner.email === email);
+  }
   async createAdmin(adminData: InsertAdmin): Promise<Admin> {
     const id = this.adminId++;
     const now = new Date();
@@ -229,6 +247,7 @@ export class MemStorage implements IStorage {
     const admin: Admin = {
       id,
       ...adminData,
+      role: adminData.role ?? null,
       createdAt: now,
       updatedAt: now
     };
@@ -247,7 +266,16 @@ export class MemStorage implements IStorage {
     }
     return null;
   }
-  
+  async validateUserLogin(credentials: UserLogin): Promise<Owner | null> {
+    const user = await this.getUserByEmail(credentials.email);
+    if (!user) return null;
+    
+    // In production, use proper password hashing and validation
+    if (user.password === credentials.password) {
+      return user;
+    }
+    return null;
+  }
   // Product methods
   async getProducts(): Promise<Product[]> {
     return Array.from(this.products.values());
@@ -264,6 +292,8 @@ export class MemStorage implements IStorage {
     const product: Product = {
       id,
       ...productData,
+      stock: productData.stock ?? null,
+      isAvailable: productData.isAvailable ?? null,
       createdAt: now,
       updatedAt: now
     };
@@ -299,6 +329,7 @@ export class MemStorage implements IStorage {
       isApproved: true,
       createdAt: new Date(),
       updatedAt: new Date(),
+            password: ""
     };
     
     const markOwner: Owner = {
@@ -311,6 +342,7 @@ export class MemStorage implements IStorage {
       isApproved: true,
       createdAt: new Date(),
       updatedAt: new Date(),
+      password: ""
     };
     
     const jessicaOwner: Owner = {
@@ -323,6 +355,7 @@ export class MemStorage implements IStorage {
       isApproved: true,
       createdAt: new Date(),
       updatedAt: new Date(),
+            password: ""
     };
     
     // Add a pending owner for testing
@@ -336,6 +369,7 @@ export class MemStorage implements IStorage {
       isApproved: false,
       createdAt: new Date(),
       updatedAt: new Date(),
+            password: ""
     };
     
     this.owners.set(sarahOwner.id, sarahOwner);
@@ -682,7 +716,7 @@ export class DatabaseStorage implements IStorage {
     return owner;
   }
 
-  async createOwner(owner: Omit<Owner, "id">): Promise<Owner> {
+  async registerOwner(owner: Omit<Owner, "id">): Promise<Owner> {
     const ownerWithDefaults = {
       ...owner,
       isApproved: false
@@ -730,6 +764,7 @@ export class DatabaseStorage implements IStorage {
   async createReport(reportData: ReportCrueltySchema): Promise<Report> {
     const reportToInsert = {
       ...reportData,
+      contactInfo: reportData.contactInfo ?? null,
       status: "submitted",
       adminNotes: null,
       assignedTo: null
@@ -761,9 +796,16 @@ export class DatabaseStorage implements IStorage {
     const [admin] = await db.select().from(adminsSchema).where(eq(adminsSchema.username, username));
     return admin;
   }
-
+  async getUserByEmail(email: string): Promise<Owner | undefined> {
+    const [user] = await db.select().from(ownersSchema).where(eq(ownersSchema.email, email));
+    return user;
+  }
   async createAdmin(adminData: InsertAdmin): Promise<Admin> {
-    const [newAdmin] = await db.insert(adminsSchema).values(adminData).returning();
+    const adminToInsert = {
+      ...adminData,
+      role: adminData.role ?? null
+    };
+    const [newAdmin] = await db.insert(adminsSchema).values(adminToInsert).returning();
     return newAdmin;
   }
 
@@ -777,7 +819,16 @@ export class DatabaseStorage implements IStorage {
     }
     return null;
   }
-
+  async validateUserLogin(credentials: UserLogin): Promise<Owner | null> {
+    const user = await this.getUserByEmail(credentials.email);
+    if (!user) return null;
+    
+    // In production, use proper password hashing and validation
+    if (user.password === credentials.password) {
+      return user;
+    }
+    return null;
+  }
   // Product methods
   async getProducts(): Promise<Product[]> {
     return db.select().from(productsSchema);

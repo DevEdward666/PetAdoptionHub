@@ -35,6 +35,7 @@ export default function Home() {
   const { state } = useAppContext();
 
   const renderContent = () => {
+    console.log(activeTab);
     switch (activeTab) {
       case "adopt":
         return <AdoptPet />;
@@ -89,8 +90,8 @@ export default function Home() {
         {renderContent()}
       </IonContent>
 
-      <IonTabBar slot="bottom">
-        <IonTabButton tab="home" href="/">
+      {/* <IonTabBar slot="bottom">
+        <IonTabButton tab="home" href="/home">
           <IonIcon icon={homeOutline} />
           <IonLabel>Home</IonLabel>
         </IonTabButton>
@@ -107,11 +108,11 @@ export default function Home() {
             </span>
           )}
         </IonTabButton>
-        <IonTabButton tab="profile">
+        <IonTabButton tab="profile" href="/profile">
           <IonIcon icon={personOutline} />
           <IonLabel>Profile</IonLabel>
         </IonTabButton>
-      </IonTabBar>
+      </IonTabBar> */}
     </IonPage>
   );
 }

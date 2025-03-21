@@ -142,7 +142,7 @@ export default function AdminUsers() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {admins.map((admin) => (
+                    {admins.map((admin: Admin) => (
                       <TableRow key={admin.id}>
                         <TableCell className="font-medium">
                           <div className="flex items-center space-x-2">
@@ -268,7 +268,7 @@ export default function AdminUsers() {
                       <FormLabel>Role</FormLabel>
                       <Select 
                         onValueChange={field.onChange} 
-                        defaultValue={field.value}
+                        defaultValue={field.value || 'admin'}
                       >
                         <FormControl>
                           <SelectTrigger>
