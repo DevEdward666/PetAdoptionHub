@@ -35,7 +35,10 @@ export function PetCard({ pet, onAdoptClick, onFavoriteClick, isFavorited }: Pet
           <div className="flex justify-between items-start">
             <div>
               <IonCardTitle className="font-bold">{pet.name}</IonCardTitle>
-              <IonCardSubtitle>{pet.breed} • {pet.age} {pet.age === 1 ? 'year' : 'years'}</IonCardSubtitle>
+              <IonCardSubtitle>
+                {pet.breed} • {pet.age} {pet.age === 1 ? 'year' : 'years'}
+                {pet.gender && ` • ${pet.gender}`}
+              </IonCardSubtitle>
             </div>
             <IonChip color="warning">
               <IonLabel>{pet.status}</IonLabel>

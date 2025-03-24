@@ -4,17 +4,17 @@ export interface Pet {
   type: string;
   breed: string;
   age: number;
-  gender: 'male' | 'female';
+  gender: string | null;
   size: string | null;
   description: string;
   imageUrl: string;
   ownerId: number;
   ownerName: string;
   ownerAvatarUrl: string;
-  likes: number;
+  likes: number | null;
   isAdoptable: boolean;
-  isRecent: boolean;
-  isFeatured: boolean;
+  isRecent: boolean | null;
+  isFeatured: boolean | null;
   status: string;
   createdAt: Date | null;
   updatedAt: Date | null;
@@ -28,6 +28,8 @@ export interface Owner {
   avatarUrl: string;
   bio: string;
   createdAt: string;
+  type: string;
+  isApproved: boolean;
 }
 
 export interface Admin {
@@ -35,6 +37,8 @@ export interface Admin {
   name: string;
   email: string;
   role: string;
+  username: string;
+  createdAt: string;
 }
 
 export interface Report {
@@ -45,4 +49,18 @@ export interface Report {
   reporterId: number;
   createdAt: string;
   status: 'pending' | 'investigating' | 'resolved' | 'dismissed';
+  adminNotes?: string;
+  anonymous: boolean;
+  contactInfo?: string;
+}
+
+export interface Product {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  imageUrl: string;
+  category: string;
+  createdAt: string;
+  updatedAt: string;
 } 

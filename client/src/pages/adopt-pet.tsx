@@ -1,43 +1,64 @@
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Pet } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
+import { 
+  IonContent, 
+  IonHeader, 
+  IonToolbar, 
+  IonTitle, 
+  IonButtons, 
+  IonBackButton,
+  IonList,
+  IonItem,
+  IonLabel,
+  IonIcon,
+  IonAvatar,
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonSelect,
+  IonSelectOption,
+  IonToggle,
+  IonRange,
+  IonSearchbar,
+  IonGrid,
+  IonRow,
+  IonModal
+} from "@ionic/react";
+import { 
+  logOutOutline, 
+  heartOutline, 
+  settingsOutline, 
+  helpCircleOutline,
+  personCircleOutline,
+  mailOutline,
+  locationOutline
+} from 'ionicons/icons';
 import { PetCard } from "@/components/ui/pet-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAppContext } from "../store/AppContext";
 import { 
-  IonCard, 
-  IonCardContent, 
   IonCardHeader, 
   IonCardTitle, 
   IonChip,
-  IonLabel,
-  IonIcon,
-  IonButton,
-  IonSearchbar,
-  IonGrid,
-  IonRow,
-  IonModal,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonContent,
-  IonList,
-  IonItem,
-  IonSelect,
-  IonSelectOption,
-  IonRange,
-  IonToggle,
-  IonButtons
 } from "@ionic/react";
 import { 
   filterOutline, 
   sadOutline,
   pawOutline,
-  heartOutline,
   starOutline,
   diamondOutline,
   sparklesOutline,
   closeOutline
 } from "ionicons/icons";
-import { useState } from "react";
+
+interface Filters {
+  type: string;
+  age: string;
+  size: string;
+  gender: string;
+}
 
 export default function AdoptPet() {
   const { toast } = useToast();
@@ -49,7 +70,12 @@ export default function AdoptPet() {
     dispatch
   } = useAppContext();
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
-  const [tempFilters, setTempFilters] = useState(state.filters);
+  const [tempFilters, setTempFilters] = useState<Filters>({
+    type: 'all',
+    age: 'any',
+    size: 'any',
+    gender: 'any'
+  });
 
   const handleAdoptClick = (petId: number) => {
     toast({
@@ -58,7 +84,7 @@ export default function AdoptPet() {
     });
   };
 
-  const handleFilterChange = (key: string, value: any) => {
+  const handleFilterChange = (key: keyof Filters, value: string) => {
     setTempFilters(prev => ({
       ...prev,
       [key]: value
@@ -79,13 +105,22 @@ export default function AdoptPet() {
       type: 'all',
       age: 'any',
       size: 'any',
-      gender: 'any',
-      goodWithKids: false
+      gender: 'any'
     });
   };
 
   const filteredPets = getFilteredPets();
   const isLoading = state.isLoading.pets;
+
+  const filterPets = (pets: Pet[]) => {
+    return pets.filter(pet => {
+      if (tempFilters.type && tempFilters.type !== 'all' && pet.type !== tempFilters.type) return false;
+      if (tempFilters.age && tempFilters.age !== 'any' && pet.age > Number(tempFilters.age)) return false;
+      if (tempFilters.gender && tempFilters.gender !== 'any' && pet.gender !== tempFilters.gender) return false;
+      if (tempFilters.size && tempFilters.size !== 'any' && pet.size !== tempFilters.size) return false;
+      return true;
+    });
+  };
 
   return (
     <div>
@@ -166,14 +201,6 @@ export default function AdoptPet() {
                 <IonSelectOption value="male">Male</IonSelectOption>
                 <IonSelectOption value="female">Female</IonSelectOption>
               </IonSelect>
-            </IonItem>
-
-            <IonItem>
-              <IonLabel>Good with Kids</IonLabel>
-              <IonToggle
-                checked={tempFilters.goodWithKids}
-                onIonChange={e => handleFilterChange('goodWithKids', e.detail.checked)}
-              />
             </IonItem>
           </IonList>
 

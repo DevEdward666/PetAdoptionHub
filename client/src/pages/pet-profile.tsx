@@ -35,7 +35,8 @@ import {
   flagOutline
 } from 'ionicons/icons';
 import { useEffect, useState } from 'react';
-import { Pet, Owner } from '../types/schema';
+import { Pet } from "@shared/schema";
+import { Owner } from '../types/schema';
 import { useToast } from '@/hooks/use-toast';
 
 export default function PetProfile() {
@@ -195,14 +196,18 @@ export default function PetProfile() {
                 <IonIcon icon={calendarOutline} />
                 <IonLabel>{pet.age} years</IonLabel>
               </IonChip>
-              <IonChip color="tertiary">
-                <IonIcon icon={scaleOutline} />
-                <IonLabel>{pet.size}</IonLabel>
-              </IonChip>
-              <IonChip color="success">
-                <IonIcon icon={pet.gender === 'male' ? maleOutline : femaleOutline} />
-                <IonLabel>{pet.gender}</IonLabel>
-              </IonChip>
+              {pet.size && (
+                <IonChip color="tertiary">
+                  <IonIcon icon={scaleOutline} />
+                  <IonLabel>{pet.size}</IonLabel>
+                </IonChip>
+              )}
+              {pet.gender && (
+                <IonChip color="success">
+                  <IonIcon icon={pet.gender === 'male' ? maleOutline : femaleOutline} />
+                  <IonLabel>{pet.gender}</IonLabel>
+                </IonChip>
+              )}
             </div>
 
             <div className="space-y-4">

@@ -34,7 +34,7 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog';
-import { Owner } from '@shared/schema';
+import { Owner } from "../../types/schema";
 import { IonIcon } from '@ionic/react';
 import { checkmarkOutline, closeOutline, trashOutline, personCircleOutline } from 'ionicons/icons';
 

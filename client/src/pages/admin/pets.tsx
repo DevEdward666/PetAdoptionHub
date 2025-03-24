@@ -36,7 +36,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Pet } from '@shared/schema';
+import { Pet } from "../../types/schema";
 import { IonIcon } from '@ionic/react';
 import { pencilOutline, trashOutline, addOutline, closeOutline, imageOutline } from 'ionicons/icons';
 

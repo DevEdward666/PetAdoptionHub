@@ -37,7 +37,7 @@ import {
 } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { formatDistanceToNow } from 'date-fns';
-import { Report } from '@shared/schema';
+import { Report } from "../../types/schema";
 import { IonIcon } from '@ionic/react';
 import { 
   eyeOutline, 
