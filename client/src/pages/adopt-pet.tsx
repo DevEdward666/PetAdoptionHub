@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Pet } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { 
   IonContent, 
@@ -20,32 +19,17 @@ import {
   IonRow,
   IonModal,
   IonSearchbar,
-  IonPage,
-  IonCol,
   IonCardHeader,
   IonCardTitle,
-  IonCardSubtitle,
-  IonImg,
-  IonChip
 } from "@ionic/react";
 import { 
   filterOutline,
   sadOutline,
   closeOutline,
-  logOutOutline,
-  searchOutline,
-  heartOutline,
-  heart,
-  locationOutline
 } from "ionicons/icons";
 import { PetCard } from "@/components/ui/pet-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAppContext } from "../store/AppContext";
-import { 
-  pawOutline,
-  calendarOutline,
-  sparklesOutline,
-} from "ionicons/icons";
 
 interface Filters {
   type: string;

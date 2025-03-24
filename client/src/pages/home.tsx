@@ -2,7 +2,6 @@ import { useState } from "react";
 import AdoptPet from "./adopt-pet";
 import PetOwners from "./pet-owners";
 import ReportCruelty from "./report-cruelty";
-import { useAppContext } from "../store/AppContext";
 import { 
   IonPage, 
   IonHeader, 

@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import type { Admin } from "@shared/schema";
-import { AdminLogin, adminLoginSchema } from "@shared/schema";
+import { AdminLogin as AdminLoginType, adminLoginSchema } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAdmin } from "@/store/AdminContext";
@@ -26,7 +26,7 @@ export default function AdminLogin() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
-  const form = useForm<AdminLogin>({
+  const form = useForm<AdminLoginType>({
     resolver: zodResolver(adminLoginSchema),
     defaultValues: {
       username: "",
@@ -35,7 +35,7 @@ export default function AdminLogin() {
   });
 
   const mutation = useMutation({
-    mutationFn: async (data: AdminLogin) => {
+    mutationFn: async (data: AdminLoginType) => {
       const response = await apiRequest("POST", "/api/admin/login", data);
       return response.json() as Promise<LoginResponse>;
     },
@@ -62,7 +62,7 @@ export default function AdminLogin() {
     }
   });
 
-  const onSubmit = (data: AdminLogin) => {
+  const onSubmit = (data: AdminLoginType) => {
     setIsLoading(true);
     mutation.mutate(data);
   };
