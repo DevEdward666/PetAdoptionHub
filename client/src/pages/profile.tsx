@@ -121,7 +121,7 @@ import {
           
           <div className="mt-8 mb-4 flex items-center justify-center">
             <IonIcon icon={pawOutline} className="text-muted-foreground mr-2" />
-            <p className="text-sm text-muted-foreground">PetPals v1.0.0</p>
+            <p className="text-sm text-muted-foreground">Pawfect Match v1.0.0</p>
           </div>
         </IonContent>
       </IonPage>

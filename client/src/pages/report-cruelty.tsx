@@ -201,7 +201,7 @@ export default function ReportCruelty() {
         <p className="text-sm text-gray-600">
           For emergencies, please call Animal Protection Hotline:
         </p>
-        <p className="font-semibold text-[#DC3545]">1-800-123-4567</p>
+        <p className="font-semibold text-[#DC3545]">(082)  241-1000 </p>
       </div>
     </div>
   );

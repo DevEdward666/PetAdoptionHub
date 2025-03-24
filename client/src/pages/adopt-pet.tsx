@@ -13,9 +13,31 @@ import {
   IonButton,
   IonSearchbar,
   IonGrid,
-  IonRow
+  IonRow,
+  IonModal,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonContent,
+  IonList,
+  IonItem,
+  IonSelect,
+  IonSelectOption,
+  IonRange,
+  IonToggle,
+  IonButtons
 } from "@ionic/react";
-import { filterOutline, sadOutline } from "ionicons/icons";
+import { 
+  filterOutline, 
+  sadOutline,
+  pawOutline,
+  heartOutline,
+  starOutline,
+  diamondOutline,
+  sparklesOutline,
+  closeOutline
+} from "ionicons/icons";
+import { useState } from "react";
 
 export default function AdoptPet() {
   const { toast } = useToast();
@@ -23,13 +45,42 @@ export default function AdoptPet() {
     state, 
     setActiveFilter, 
     toggleFavorite, 
-    getFilteredPets 
+    getFilteredPets,
+    dispatch
   } = useAppContext();
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [tempFilters, setTempFilters] = useState(state.filters);
 
   const handleAdoptClick = (petId: number) => {
     toast({
       title: "Adoption Request Sent",
       description: "The owner will be notified of your interest.",
+    });
+  };
+
+  const handleFilterChange = (key: string, value: any) => {
+    setTempFilters(prev => ({
+      ...prev,
+      [key]: value
+    }));
+  };
+
+  const applyFilters = () => {
+    // Update each filter individually
+    Object.entries(tempFilters).forEach(([key, value]) => {
+      dispatch({ type: 'SET_FILTERS', payload: { key, value } });
+    });
+    setIsFilterModalOpen(false);
+  };
+
+  const resetFilters = () => {
+    dispatch({ type: 'RESET_FILTERS' });
+    setTempFilters({
+      type: 'all',
+      age: 'any',
+      size: 'any',
+      gender: 'any',
+      goodWithKids: false
     });
   };
 
@@ -43,48 +94,99 @@ export default function AdoptPet() {
         <IonCardHeader>
           <div className="flex justify-between items-center">
             <IonCardTitle className="text-lg font-bold">Find Your Match</IonCardTitle>
-            <IonButton fill="clear" size="small">
+            <IonButton fill="clear" size="small" onClick={() => setIsFilterModalOpen(true)}>
               <IonIcon slot="start" icon={filterOutline} />
               Filters
             </IonButton>
           </div>
         </IonCardHeader>
-        
-        <IonCardContent>
-          <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
-            <IonChip 
-              color={state.activeFilter === "all" ? "primary" : "medium"}
-              onClick={() => setActiveFilter("all")}
-            >
-              <IonLabel>All Pets</IonLabel>
-            </IonChip>
-            <IonChip 
-              color={state.activeFilter === "dog" ? "primary" : "medium"}
-              onClick={() => setActiveFilter("dog")}
-            >
-              <IonLabel>Dogs</IonLabel>
-            </IonChip>
-            <IonChip 
-              color={state.activeFilter === "cat" ? "primary" : "medium"}
-              onClick={() => setActiveFilter("cat")}
-            >
-              <IonLabel>Cats</IonLabel>
-            </IonChip>
-            <IonChip 
-              color={state.activeFilter === "bird" ? "primary" : "medium"}
-              onClick={() => setActiveFilter("bird")}
-            >
-              <IonLabel>Birds</IonLabel>
-            </IonChip>
-            <IonChip 
-              color={state.activeFilter === "small" ? "primary" : "medium"}
-              onClick={() => setActiveFilter("small")}
-            >
-              <IonLabel>Small Pets</IonLabel>
-            </IonChip>
-          </div>
-        </IonCardContent>
       </IonCard>
+
+      {/* Filter Modal */}
+      <IonModal isOpen={isFilterModalOpen} onDidDismiss={() => setIsFilterModalOpen(false)}>
+        <IonHeader>
+          <IonToolbar>
+            <IonTitle>Filter Pets</IonTitle>
+            <IonButtons slot="end">
+              <IonButton onClick={() => setIsFilterModalOpen(false)}>
+                <IonIcon icon={closeOutline} />
+              </IonButton>
+            </IonButtons>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent className="ion-padding">
+          <IonList>
+            <IonItem>
+              <IonLabel>Pet Type</IonLabel>
+              <IonSelect
+                value={tempFilters.type}
+                onIonChange={e => handleFilterChange('type', e.detail.value)}
+              >
+                <IonSelectOption value="all">All Pets</IonSelectOption>
+                <IonSelectOption value="dog">Dogs</IonSelectOption>
+                <IonSelectOption value="cat">Cats</IonSelectOption>
+                <IonSelectOption value="bird">Birds</IonSelectOption>
+                <IonSelectOption value="small">Small Pets</IonSelectOption>
+              </IonSelect>
+            </IonItem>
+
+            <IonItem>
+              <IonLabel>Age Range</IonLabel>
+              <IonSelect
+                value={tempFilters.age}
+                onIonChange={e => handleFilterChange('age', e.detail.value)}
+              >
+                <IonSelectOption value="any">Any Age</IonSelectOption>
+                <IonSelectOption value="young">Young (0-1 year)</IonSelectOption>
+                <IonSelectOption value="adult">Adult (1-7 years)</IonSelectOption>
+                <IonSelectOption value="senior">Senior (7+ years)</IonSelectOption>
+              </IonSelect>
+            </IonItem>
+
+            <IonItem>
+              <IonLabel>Size</IonLabel>
+              <IonSelect
+                value={tempFilters.size}
+                onIonChange={e => handleFilterChange('size', e.detail.value)}
+              >
+                <IonSelectOption value="any">Any Size</IonSelectOption>
+                <IonSelectOption value="small">Small</IonSelectOption>
+                <IonSelectOption value="medium">Medium</IonSelectOption>
+                <IonSelectOption value="large">Large</IonSelectOption>
+              </IonSelect>
+            </IonItem>
+
+            <IonItem>
+              <IonLabel>Gender</IonLabel>
+              <IonSelect
+                value={tempFilters.gender}
+                onIonChange={e => handleFilterChange('gender', e.detail.value)}
+              >
+                <IonSelectOption value="any">Any Gender</IonSelectOption>
+                <IonSelectOption value="male">Male</IonSelectOption>
+                <IonSelectOption value="female">Female</IonSelectOption>
+              </IonSelect>
+            </IonItem>
+
+            <IonItem>
+              <IonLabel>Good with Kids</IonLabel>
+              <IonToggle
+                checked={tempFilters.goodWithKids}
+                onIonChange={e => handleFilterChange('goodWithKids', e.detail.checked)}
+              />
+            </IonItem>
+          </IonList>
+
+          <div className="ion-padding">
+            <IonButton expand="block" onClick={applyFilters}>
+              Apply Filters
+            </IonButton>
+            <IonButton expand="block" fill="clear" onClick={resetFilters}>
+              Reset Filters
+            </IonButton>
+          </div>
+        </IonContent>
+      </IonModal>
 
       {/* Search */}
       <IonSearchbar 

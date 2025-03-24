@@ -11,6 +11,13 @@ interface AppState {
   owners: Owner[];
   favorites: number[];
   activeFilter: string;
+  filters: {
+    type: string;
+    age: string;
+    size: string;
+    gender: string;
+    goodWithKids: boolean;
+  };
   isLoading: {
     pets: boolean;
     owners: boolean;
@@ -26,6 +33,8 @@ type AppAction =
   | { type: 'SET_OWNERS'; payload: Owner[] }
   | { type: 'TOGGLE_FAVORITE'; payload: number }
   | { type: 'SET_ACTIVE_FILTER'; payload: string }
+  | { type: 'SET_FILTERS'; payload: { key: string; value: any } }
+  | { type: 'RESET_FILTERS' }
   | { type: 'SET_LOADING'; payload: { key: 'pets' | 'owners' | 'showcasePets'; value: boolean } }
   | { type: 'SET_ERROR'; payload: string | null }
   | { type: 'CREATE_REPORT'; payload: Report }
@@ -38,6 +47,13 @@ const initialState: AppState = {
   owners: [],
   favorites: [],
   activeFilter: 'all',
+  filters: {
+    type: 'all',
+    age: 'any',
+    size: 'any',
+    gender: 'any',
+    goodWithKids: false
+  },
   isLoading: {
     pets: false,
     owners: false,
@@ -64,6 +80,20 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
       };
     case 'SET_ACTIVE_FILTER':
       return { ...state, activeFilter: action.payload };
+    case 'SET_FILTERS':
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          [action.payload.key]: action.payload.value
+        }
+      };
+    case 'RESET_FILTERS':
+      return {
+        ...state,
+        filters: initialState.filters,
+        activeFilter: 'all'
+      };
     case 'SET_LOADING':
       return {
         ...state,
@@ -178,12 +208,41 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     }
   };
 
-  // Get filtered pets based on active filter
+  // Get filtered pets based on all filters
   const getFilteredPets = () => {
-    if (state.activeFilter === 'all') return state.pets;
-    return state.pets.filter(pet => 
-      pet.type.toLowerCase() === state.activeFilter.toLowerCase()
-    );
+    return state.pets.filter(pet => {
+      // Type filter
+      if (state.filters.type !== 'all' && pet.type.toLowerCase() !== state.filters.type.toLowerCase()) {
+        return false;
+      }
+
+      // Age filter
+      if (state.filters.age !== 'any') {
+        const age = pet.age || 0;
+        switch (state.filters.age) {
+          case 'young':
+            if (age > 1) return false;
+            break;
+          case 'adult':
+            if (age <= 1 || age > 7) return false;
+            break;
+          case 'senior':
+            if (age <= 7) return false;
+            break;
+        }
+      }
+
+      // Size filter
+      if (state.filters.size !== 'any' && pet.size?.toLowerCase() !== state.filters.size.toLowerCase()) {
+        return false;
+      }
+
+      // Gender filter
+      if (state.filters.gender !== 'any' && pet.gender?.toLowerCase() !== state.filters.gender.toLowerCase()) {
+        return false;
+      }
+      return true;
+    });
   };
 
   // Get filtered owners based on search term

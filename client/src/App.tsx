@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import { useAppContext } from './store/AppContext';
 import { AdminProvider } from './store/AdminContext';
 import TabBar from './components/TabBar';
+import PetProfile from './pages/pet-profile';
 
 // Admin pages
 import AdminLogin from "@/pages/admin/login";
@@ -18,6 +19,7 @@ import AdminUsers from "@/pages/admin/admins";
 import UserLogin from './pages/login';
 import Profile from './pages/profile';
 import Register from './pages/register';
+import PetShowcase from './pages/pet-showcase';
 
 function App() {
   const { fetchPets, fetchOwners, fetchShowcasePets } = useAppContext();
@@ -37,14 +39,16 @@ function App() {
           <Route path="/" component={UserLogin} />
           <Route path="/admin/login" component={AdminLogin} />
           <Route path="/register" component={Register} />
+          <Route path="/pet/:id" component={PetProfile} />
           {/* Main App Routes with TabBar */}
           <Route path="/home/:rest*">
             <IonTabs>
               <IonRouterOutlet>
                 <Route path="/home/main" component={Home} />
                 <Route path="/home/profile" component={Profile} />
-                <Route path="/home/pets" component={Home} />
+                <Route path="/home/pets" component={PetShowcase} />
                 <Route path="/home/favorites" component={Home} />
+             
               </IonRouterOutlet>
               <TabBar />
             </IonTabs>

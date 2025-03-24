@@ -27,7 +27,10 @@ import {
   pawOutline, 
   homeOutline, 
   heartOutline, 
-  personOutline 
+  personOutline,
+  peopleOutline,
+  warningOutline,
+  pawSharp
 } from 'ionicons/icons';
 
 export default function Home() {
@@ -41,8 +44,6 @@ export default function Home() {
         return <AdoptPet />;
       case "owners":
         return <PetOwners />;
-      case "showcase":
-        return <PetShowcase />;
       case "report":
         return <ReportCruelty />;
       default:
@@ -56,7 +57,7 @@ export default function Home() {
         <IonToolbar>
           <div className="flex items-center px-2" slot="start">
             <IonIcon icon={pawOutline} className="text-primary text-2xl mr-2" />
-            <IonTitle>PetPals</IonTitle>
+            <IonTitle>Pawfect Match</IonTitle>
           </div>
           <IonButtons slot="end">
             <IonButton>
@@ -69,18 +70,18 @@ export default function Home() {
         </IonToolbar>
         
         <IonToolbar>
-          <IonSegment value={activeTab} onIonChange={e => setActiveTab(e.detail.value as string)}>
-            <IonSegmentButton value="adopt">
-              <IonLabel>Adopt a Pet</IonLabel>
+          <IonSegment value={activeTab} onIonChange={e => setActiveTab(e.detail.value as string)} className="w-full">
+            <IonSegmentButton value="adopt" className="flex-1">
+              <IonIcon icon={pawSharp} className="md:hidden text-lg" />
+              <IonLabel className="hidden md:block text-xs md:text-sm whitespace-nowrap">Adopt</IonLabel>
             </IonSegmentButton>
-            <IonSegmentButton value="owners">
-              <IonLabel>Pet Owners</IonLabel>
+            <IonSegmentButton value="owners" className="flex-1">
+              <IonIcon icon={peopleOutline} className="md:hidden text-lg" />
+              <IonLabel className="hidden md:block text-xs md:text-sm whitespace-nowrap">Owners</IonLabel>
             </IonSegmentButton>
-            <IonSegmentButton value="showcase">
-              <IonLabel>Showcase</IonLabel>
-            </IonSegmentButton>
-            <IonSegmentButton value="report">
-              <IonLabel>Report</IonLabel>
+            <IonSegmentButton value="report" className="flex-1">
+              <IonIcon icon={warningOutline} className="md:hidden text-lg" />
+              <IonLabel className="hidden md:block text-xs md:text-sm whitespace-nowrap">Report</IonLabel>
             </IonSegmentButton>
           </IonSegment>
         </IonToolbar>

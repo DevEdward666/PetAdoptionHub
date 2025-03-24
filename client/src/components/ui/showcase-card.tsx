@@ -1,4 +1,5 @@
 import { Pet } from "@shared/schema";
+import { Link } from "wouter";
 
 interface ShowcaseCardProps {
   pet: Pet;
@@ -7,6 +8,7 @@ interface ShowcaseCardProps {
 
 export function ShowcaseCard({ pet, onLike }: ShowcaseCardProps) {
   return (
+    <Link href={`/pet/${pet.id}`}>
     <div className="bg-white rounded-[12px] shadow-sm overflow-hidden">
       <div className="relative">
         <img 
@@ -29,7 +31,10 @@ export function ShowcaseCard({ pet, onLike }: ShowcaseCardProps) {
             <span className="text-xs ml-1 text-gray-600">{pet.ownerName}</span>
           </div>
           <div className="flex items-center">
-            <button onClick={() => onLike(pet.id)} className="flex items-center">
+            <button onClick={(e) => {
+              e.stopPropagation();
+              onLike(pet.id);
+            }} className="flex items-center">
               <i className="ri-heart-fill text-primary text-sm"></i>
               <span className="text-xs ml-1">{pet.likes}</span>
             </button>
@@ -37,5 +42,6 @@ export function ShowcaseCard({ pet, onLike }: ShowcaseCardProps) {
         </div>
       </div>
     </div>
+    </Link>
   );
 }

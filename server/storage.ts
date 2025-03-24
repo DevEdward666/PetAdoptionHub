@@ -18,6 +18,7 @@ import {
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, asc, sql } from "drizzle-orm";
+import bcrypt from 'bcrypt';
 
 // Storage interface
 export interface IStorage {
@@ -152,11 +153,13 @@ export class MemStorage implements IStorage {
     return this.owners.get(id);
   }
 
-  async registerOwner(owner:Omit<Owner, "id">): Promise<Owner> {
+  async registerOwner(owner: Omit<Owner, "id">): Promise<Owner> {
+    const hashedPassword = await bcrypt.hash(owner.password, 10);
     const id = this.ownerId++;
     const newOwner = { 
       ...owner, 
       id,
+      password: hashedPassword,
       isApproved: false,
       createdAt: new Date(),
       updatedAt: new Date()
@@ -270,8 +273,8 @@ export class MemStorage implements IStorage {
     const user = await this.getUserByEmail(credentials.email);
     if (!user) return null;
     
-    // In production, use proper password hashing and validation
-    if (user.password === credentials.password) {
+    const isValidPassword = await bcrypt.compare(credentials.password, user.password);
+    if (isValidPassword) {
       return user;
     }
     return null;
@@ -394,6 +397,8 @@ export class MemStorage implements IStorage {
       likes: 120,
       isRecent: true,
       isFeatured: false,
+      size: "large",
+      gender: "male",
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -414,6 +419,8 @@ export class MemStorage implements IStorage {
       likes: 87,
       isRecent: false,
       isFeatured: true,
+      size: "medium",
+      gender: "female",
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -434,6 +441,8 @@ export class MemStorage implements IStorage {
       likes: 145,
       isRecent: true,
       isFeatured: true,
+      size: "medium",
+      gender: "male",
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -455,6 +464,8 @@ export class MemStorage implements IStorage {
       likes: 243,
       isRecent: false,
       isFeatured: true,
+      size: "small",
+      gender: "male",
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -475,6 +486,8 @@ export class MemStorage implements IStorage {
       likes: 187,
       isRecent: true,
       isFeatured: false,
+      size: "large",
+      gender: "female",
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -495,6 +508,8 @@ export class MemStorage implements IStorage {
       likes: 156,
       isRecent: false,
       isFeatured: false,
+      size: "small",
+      gender: "male",
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -515,6 +530,8 @@ export class MemStorage implements IStorage {
       likes: 219,
       isRecent: true,
       isFeatured: true,
+      size: "large",
+      gender: "male",
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -535,6 +552,8 @@ export class MemStorage implements IStorage {
       likes: 142,
       isRecent: false,
       isFeatured: false,
+      size: "small",
+      gender: "female",
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -555,6 +574,8 @@ export class MemStorage implements IStorage {
       likes: 98,
       isRecent: true,
       isFeatured: false,
+      size: "small",
+      gender: "male",
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -717,8 +738,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   async registerOwner(owner: Omit<Owner, "id">): Promise<Owner> {
+    const hashedPassword = await bcrypt.hash(owner.password, 10);
     const ownerWithDefaults = {
       ...owner,
+      password: hashedPassword,
       isApproved: false
     };
     const [newOwner] = await db.insert(ownersSchema).values(ownerWithDefaults).returning();
@@ -801,8 +824,10 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
   async createAdmin(adminData: InsertAdmin): Promise<Admin> {
+    const hashedPassword = await bcrypt.hash(adminData.password, 10);
     const adminToInsert = {
       ...adminData,
+      password: hashedPassword,
       role: adminData.role ?? null
     };
     const [newAdmin] = await db.insert(adminsSchema).values(adminToInsert).returning();
@@ -813,8 +838,8 @@ export class DatabaseStorage implements IStorage {
     const admin = await this.getAdminByUsername(credentials.username);
     if (!admin) return null;
     
-    // In production, use proper password hashing and validation
-    if (admin.password === credentials.password) {
+    const isValidPassword = await bcrypt.compare(credentials.password, admin.password);
+    if (isValidPassword) {
       return admin;
     }
     return null;
@@ -823,8 +848,8 @@ export class DatabaseStorage implements IStorage {
     const user = await this.getUserByEmail(credentials.email);
     if (!user) return null;
     
-    // In production, use proper password hashing and validation
-    if (user.password === credentials.password) {
+    const isValidPassword = await bcrypt.compare(credentials.password, user.password);
+    if (isValidPassword) {
       return user;
     }
     return null;

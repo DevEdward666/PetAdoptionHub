@@ -254,6 +254,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const pet = await storage.createPet({
         ...petData,
         likes: 0,
+        size: "",
+        gender: "",
         isRecent: false,
         isFeatured: false,
         createdAt: null,
@@ -321,6 +323,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/register/owners", async (req, res) => {
     try {
       const ownerData = insertOwnerSchema.parse(req.body);
+      
+      // Check if email already exists
+      const existingOwner = await storage.getUserByEmail(ownerData.email);
+      if (existingOwner) {
+        return res.status(400).json({ message: "Email already exists" });
+      }
+      
       const owner = await storage.registerOwner({
         ...ownerData,
         isApproved: false,

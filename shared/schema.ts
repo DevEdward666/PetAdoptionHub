@@ -17,6 +17,9 @@ export const pets = pgTable("pets", {
   ownerName: text("owner_name").notNull(),
   ownerAvatarUrl: text("owner_avatar_url").notNull(),
   likes: integer("likes").default(0),
+  size: text("size").default("1 feet"),
+  gender: text("gender").default("male"),
+
   isRecent: boolean("is_recent").default(false),
   isFeatured: boolean("is_featured").default(false),
   createdAt: timestamp("created_at").defaultNow(),

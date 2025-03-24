@@ -5,6 +5,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Pet } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
+import { IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonPage, IonTitle, IonToolbar } from "@ionic/react";
+import { pawOutline, searchOutline, notificationsOutline } from "ionicons/icons";
 
 export default function PetShowcase() {
   const { toast } = useToast();
@@ -40,6 +42,24 @@ export default function PetShowcase() {
   const visiblePets = filteredPets?.slice(0, visibleCount);
 
   return (
+    <IonPage>
+       <IonHeader>
+        <IonToolbar>
+          <div className="flex items-center px-2" slot="start">
+            <IonIcon icon={pawOutline} className="text-primary text-2xl mr-2" />
+            <IonTitle>Pawfect Match</IonTitle>
+          </div>
+          <IonButtons slot="end">
+            <IonButton>
+              <IonIcon slot="icon-only" icon={searchOutline} />
+            </IonButton>
+            <IonButton>
+              <IonIcon slot="icon-only" icon={notificationsOutline} />
+            </IonButton>
+          </IonButtons>
+        </IonToolbar>
+      </IonHeader>
+      <IonContent>
     <div>
       <h2 className="font-['Nunito'] font-bold text-xl mb-4">Pet Showcase</h2>
       
@@ -118,5 +138,7 @@ export default function PetShowcase() {
         </div>
       )}
     </div>
+    </IonContent>
+    </IonPage>
   );
 }
