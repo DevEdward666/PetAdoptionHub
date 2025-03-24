@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
 import { 
   IonContent, 
   IonHeader, 
@@ -39,7 +38,6 @@ interface Filters {
 }
 
 export default function AdoptPet() {
-  const { toast } = useToast();
   const { 
     state, 
     setActiveFilter, 
