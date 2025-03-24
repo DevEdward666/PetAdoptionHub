@@ -37,7 +37,6 @@ type AppAction =
   | { type: 'RESET_FILTERS' }
   | { type: 'SET_LOADING'; payload: { key: 'pets' | 'owners' | 'showcasePets'; value: boolean } }
   | { type: 'SET_ERROR'; payload: string | null }
-  | { type: 'CREATE_REPORT'; payload: Report }
   | { type: 'RESET_ERROR' };
 
 // Define initial state
@@ -120,7 +119,7 @@ interface AppContextValue {
   fetchOwners: () => Promise<void>;
   toggleFavorite: (petId: number) => void;
   setActiveFilter: (filter: string) => void;
-  submitReport: (reportData: any) => Promise<void>;
+  submitReport: (reportData: Omit<Report, 'id' | 'createdAt'>) => Promise<void>;
   getFilteredPets: () => Pet[];
   getFilteredOwners: (searchTerm: string) => Owner[];
   getPetsForOwner: (ownerId: number) => Pet[];
@@ -198,7 +197,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   };
 
   // Submit report
-  const submitReport = async (reportData: any) => {
+  const submitReport = async (reportData: Omit<Report, 'id' | 'createdAt'>) => {
     try {
       dispatch({ type: 'RESET_ERROR' });
       await apiRequest('POST', '/api/reports', reportData);

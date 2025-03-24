@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { Pet } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { 
@@ -7,24 +6,32 @@ import {
   IonHeader, 
   IonToolbar, 
   IonTitle, 
-  IonButtons, 
-  IonBackButton,
+  IonButtons,
   IonList,
   IonItem,
   IonLabel,
   IonIcon,
-  IonAvatar,
   IonButton,
   IonCard,
   IonCardContent,
   IonSelect,
   IonSelectOption,
-  IonToggle,
-  IonRange,
-  IonSearchbar,
   IonGrid,
   IonRow,
-  IonModal
+  IonModal,
+  IonSearchbar
+} from "@ionic/react";
+import { 
+  filterOutline,
+  sadOutline,
+  closeOutline
+} from "ionicons/icons";
+import { PetCard } from "@/components/ui/pet-card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useAppContext } from "../store/AppContext";
+import { 
+  IonCardHeader, 
+  IonCardTitle,
 } from "@ionic/react";
 import { 
   logOutOutline, 
@@ -35,22 +42,14 @@ import {
   mailOutline,
   locationOutline
 } from 'ionicons/icons';
-import { PetCard } from "@/components/ui/pet-card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useAppContext } from "../store/AppContext";
 import { 
-  IonCardHeader, 
-  IonCardTitle, 
   IonChip,
 } from "@ionic/react";
 import { 
-  filterOutline, 
-  sadOutline,
   pawOutline,
   starOutline,
   diamondOutline,
   sparklesOutline,
-  closeOutline
 } from "ionicons/icons";
 
 interface Filters {

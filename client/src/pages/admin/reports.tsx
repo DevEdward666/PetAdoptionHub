@@ -59,7 +59,7 @@ export default function AdminReports() {
   // Fetch all reports
   const { 
     data: reports = [], 
-    isLoading: isLoadingReports 
+    isLoading,
   } = useQuery({
     queryKey: ['/api/admin/reports'],
     queryFn: fetchReports
@@ -152,7 +152,7 @@ export default function AdminReports() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {isLoadingReports ? (
+            {isLoading ? (
               <div className="text-center p-4">Loading reports...</div>
             ) : filteredReports.length === 0 ? (
               <div className="text-center p-8 text-muted-foreground">

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import AdoptPet from "./adopt-pet";
 import PetOwners from "./pet-owners";
-import PetShowcase from "./pet-showcase";
 import ReportCruelty from "./report-cruelty";
 import { useAppContext } from "../store/AppContext";
 import { 
@@ -15,19 +14,12 @@ import {
   IonIcon,
   IonSegment,
   IonSegmentButton,
-  IonLabel,
-  IonTabBar,
-  IonTabButton,
-  IonTabs,
-  IonRouterOutlet
+  IonLabel
 } from "@ionic/react";
 import { 
   searchOutline, 
   notificationsOutline, 
   pawOutline, 
-  homeOutline, 
-  heartOutline, 
-  personOutline,
   peopleOutline,
   warningOutline,
   pawSharp
