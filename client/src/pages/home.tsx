@@ -27,7 +27,6 @@ import {
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState("adopt");
-  const { state } = useAppContext();
 
   const renderContent = () => {
     console.log(activeTab);

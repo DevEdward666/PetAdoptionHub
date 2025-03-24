@@ -19,36 +19,31 @@ import {
   IonGrid,
   IonRow,
   IonModal,
-  IonSearchbar
+  IonSearchbar,
+  IonPage,
+  IonCol,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardSubtitle,
+  IonImg,
+  IonChip
 } from "@ionic/react";
 import { 
   filterOutline,
   sadOutline,
-  closeOutline
+  closeOutline,
+  logOutOutline,
+  searchOutline,
+  heartOutline,
+  heart,
+  locationOutline
 } from "ionicons/icons";
 import { PetCard } from "@/components/ui/pet-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAppContext } from "../store/AppContext";
 import { 
-  IonCardHeader, 
-  IonCardTitle,
-} from "@ionic/react";
-import { 
-  logOutOutline, 
-  heartOutline, 
-  settingsOutline, 
-  helpCircleOutline,
-  personCircleOutline,
-  mailOutline,
-  locationOutline
-} from 'ionicons/icons';
-import { 
-  IonChip,
-} from "@ionic/react";
-import { 
   pawOutline,
-  starOutline,
-  diamondOutline,
+  calendarOutline,
   sparklesOutline,
 } from "ionicons/icons";
 
@@ -77,10 +72,7 @@ export default function AdoptPet() {
   });
 
   const handleAdoptClick = (petId: number) => {
-    toast({
-      title: "Adoption Request Sent",
-      description: "The owner will be notified of your interest.",
-    });
+    console.log('Adopting pet:', petId);
   };
 
   const handleFilterChange = (key: keyof Filters, value: string) => {
@@ -110,16 +102,6 @@ export default function AdoptPet() {
 
   const filteredPets = getFilteredPets();
   const isLoading = state.isLoading.pets;
-
-  const filterPets = (pets: Pet[]) => {
-    return pets.filter(pet => {
-      if (tempFilters.type && tempFilters.type !== 'all' && pet.type !== tempFilters.type) return false;
-      if (tempFilters.age && tempFilters.age !== 'any' && pet.age > Number(tempFilters.age)) return false;
-      if (tempFilters.gender && tempFilters.gender !== 'any' && pet.gender !== tempFilters.gender) return false;
-      if (tempFilters.size && tempFilters.size !== 'any' && pet.size !== tempFilters.size) return false;
-      return true;
-    });
-  };
 
   return (
     <div>

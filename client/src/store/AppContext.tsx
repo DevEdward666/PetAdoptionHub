@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, ReactNode, useEffect, useState } from 'react';
-import { Pet, Owner, Report, Admin } from '@shared/schema';
+import { Pet, Owner, Report } from '@shared/schema';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { useLocation } from 'wouter';

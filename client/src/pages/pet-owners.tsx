@@ -22,7 +22,7 @@ export default function PetOwners() {
 
   const isLoading = ownersLoading || petsLoading;
 
-  const handleViewProfile = (ownerId: number) => {
+  const handleViewProfile = () => {
     toast({
       title: "Profile Viewed",
       description: "You're viewing the owner's profile.",

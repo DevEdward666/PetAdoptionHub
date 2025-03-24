@@ -8,8 +8,6 @@ import {
   IonIcon,
   IonCard,
   IonCardContent,
-  IonCardHeader,
-  IonCardTitle,
   IonList,
   IonItem,
   IonAvatar,
@@ -19,7 +17,6 @@ import {
 } from '@ionic/react';
 import { 
   mailOutline,
-  calendarOutline,
   pawOutline,
   heartOutline,
   helpCircleOutline,
@@ -27,7 +24,6 @@ import {
   personCircleOutline,
   settingsOutline
 } from 'ionicons/icons';
-import { Owner } from '../types/schema';
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";

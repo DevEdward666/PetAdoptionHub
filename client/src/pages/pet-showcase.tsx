@@ -18,7 +18,7 @@ export default function PetShowcase() {
     queryKey: ['/api/pets/showcase'],
   });
 
-  const handleLike = (petId: number) => {
+  const handleLike = () => {
     toast({
       title: "Liked!",
       description: "You've liked this pet.",
