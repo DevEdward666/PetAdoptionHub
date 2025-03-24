@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchAdminProducts, updateProduct, deleteProduct } from '@/lib/adminApi';
+import { fetchProducts, updateProduct, deleteProduct } from '@/lib/adminApi';
 import { AdminLayout } from '@/components/ui/admin-layout';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -64,11 +64,11 @@ export default function AdminProducts() {
 
   // Fetch all products
   const { 
-    data: products = [], 
+    data: products = [] as ProductWithStock[], 
     isLoading: isLoadingProducts 
   } = useQuery({
     queryKey: ['/api/admin/products'],
-    queryFn: fetchAdminProducts
+    queryFn: fetchProducts
   });
 
   // Update product mutation

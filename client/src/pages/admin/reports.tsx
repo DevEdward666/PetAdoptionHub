@@ -51,7 +51,7 @@ import {
 export default function AdminReports() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [filter, setFilter] = useState<string>('all');
+  const [filter, setFilter] = useState<'all' | 'pending' | 'investigating' | 'resolved' | 'dismissed'>('all');
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
   const [adminNotes, setAdminNotes] = useState('');
@@ -93,7 +93,7 @@ export default function AdminReports() {
     setShowDetailsDialog(true);
   };
 
-  const handleStatusChange = (status: string) => {
+  const handleStatusChange = (status: 'pending' | 'investigating' | 'resolved' | 'dismissed') => {
     if (selectedReport) {
       updateMutation.mutate({
         id: selectedReport.id,
@@ -119,20 +119,6 @@ export default function AdminReports() {
     return filter === 'all' || report.status === filter;
   });
 
-  // Get status badge variant
-  const getStatusBadgeVariant = (status: string) => {
-    switch(status) {
-      case 'submitted':
-        return 'warning';
-      case 'investigating':
-        return 'default';
-      case 'resolved':
-        return 'success';
-      default:
-        return 'outline';
-    }
-  };
-
   return (
     <AdminLayout title="Cruelty Reports">
       <div className="space-y-6">
@@ -142,16 +128,17 @@ export default function AdminReports() {
             <span className="text-sm text-muted-foreground mr-2">Filter:</span>
             <Select 
               value={filter} 
-              onValueChange={setFilter}
+              onValueChange={(value: 'all' | 'pending' | 'investigating' | 'resolved' | 'dismissed') => setFilter(value)}
             >
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Reports</SelectItem>
-                <SelectItem value="submitted">Submitted</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
                 <SelectItem value="investigating">Investigating</SelectItem>
                 <SelectItem value="resolved">Resolved</SelectItem>
+                <SelectItem value="dismissed">Dismissed</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -288,16 +275,17 @@ export default function AdminReports() {
                 <div>
                   <h3 className="text-sm font-medium text-muted-foreground mb-1">Current Status</h3>
                   <Select 
-                    defaultValue={selectedReport.status || undefined}
-                    onValueChange={handleStatusChange}
+                    defaultValue={selectedReport.status}
+                    onValueChange={(value: 'pending' | 'investigating' | 'resolved' | 'dismissed') => handleStatusChange(value)}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="submitted">Submitted</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
                       <SelectItem value="investigating">Investigating</SelectItem>
                       <SelectItem value="resolved">Resolved</SelectItem>
+                      <SelectItem value="dismissed">Dismissed</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
