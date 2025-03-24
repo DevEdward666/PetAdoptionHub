@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { IonContent, IonPage, IonIcon } from "@ionic/react";
 import { lockClosedOutline } from "ionicons/icons";
-import { Admin as LocalAdmin } from "../../types/schema";
+import { Admin } from "../../types/schema";
 
 interface LoginResponse {
   token: string;

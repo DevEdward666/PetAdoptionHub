@@ -1,4 +1,4 @@
-import { Pet } from "@shared/schema";
+import { Pet } from "../../types/schema";
 import { 
   IonCard, 
   IonCardContent, 
