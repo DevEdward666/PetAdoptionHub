@@ -47,7 +47,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Admin } from "../../types/schema";
+import type { Admin, InsertAdmin } from "@shared/schema";
+import { insertAdminSchema } from "@shared/schema";
 import { IonIcon } from '@ionic/react';
 import { addOutline, closeOutline, personCircleOutline } from 'ionicons/icons';
 

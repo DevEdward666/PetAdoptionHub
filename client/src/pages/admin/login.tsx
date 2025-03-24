@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { AdminLogin as AdminLoginType, adminLoginSchema, Admin } from "@shared/schema";
+import { Admin, AdminLogin, adminLoginSchema } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAdmin } from "@/store/AdminContext";
@@ -13,7 +13,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { IonContent, IonPage, IonIcon } from "@ionic/react";
 import { lockClosedOutline } from "ionicons/icons";
-import { Admin } from "../../types/schema";
 
 interface LoginResponse {
   token: string;
@@ -26,7 +25,7 @@ export default function AdminLogin() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
-  const form = useForm<AdminLoginType>({
+  const form = useForm<AdminLogin>({
     resolver: zodResolver(adminLoginSchema),
     defaultValues: {
       username: "",
@@ -35,7 +34,7 @@ export default function AdminLogin() {
   });
 
   const mutation = useMutation({
-    mutationFn: async (data: AdminLoginType) => {
+    mutationFn: async (data: AdminLogin) => {
       const response = await apiRequest("POST", "/api/admin/login", data);
       return response.json() as Promise<LoginResponse>;
     },
@@ -62,7 +61,7 @@ export default function AdminLogin() {
     }
   });
 
-  const onSubmit = (data: AdminLoginType) => {
+  const onSubmit = (data: AdminLogin) => {
     setIsLoading(true);
     mutation.mutate(data);
   };

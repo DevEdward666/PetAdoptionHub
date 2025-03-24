@@ -1,5 +1,5 @@
 import { ReactNode, useState, useEffect } from 'react';
-import { useLocation, Link } from 'wouter';
+import { useLocation } from 'wouter';
 import { useAdmin } from '@/store/AdminContext';
 import { 
   IonPage, 

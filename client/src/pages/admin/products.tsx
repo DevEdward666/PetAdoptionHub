@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchProducts, createProduct, updateProduct, deleteProduct } from '@/lib/adminApi';
+import { fetchAdminProducts, updateProduct, deleteProduct } from '@/lib/adminApi';
 import { AdminLayout } from '@/components/ui/admin-layout';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -47,12 +47,18 @@ import {
   searchOutline
 } from 'ionicons/icons';
 
+// Update the Product interface to include the missing properties
+interface ProductWithStock extends Product {
+  stock: number;
+  isAvailable: boolean;
+}
+
 export default function AdminProducts() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [filter, setFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<ProductWithStock | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
 
@@ -62,12 +68,12 @@ export default function AdminProducts() {
     isLoading: isLoadingProducts 
   } = useQuery({
     queryKey: ['/api/admin/products'],
-    queryFn: fetchProducts
+    queryFn: fetchAdminProducts
   });
 
   // Update product mutation
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: Partial<Product> }) => 
+    mutationFn: ({ id, data }: { id: number; data: Partial<ProductWithStock> }) => 
       updateProduct(id, data),
     onSuccess: () => {
       toast({
@@ -113,7 +119,7 @@ export default function AdminProducts() {
     }
   });
 
-  const handleDelete = (product: Product) => {
+  const handleDelete = (product: ProductWithStock) => {
     setSelectedProduct(product);
     setShowDeleteDialog(true);
   };
@@ -124,7 +130,7 @@ export default function AdminProducts() {
     }
   };
 
-  const handleEdit = (product: Product) => {
+  const handleEdit = (product: ProductWithStock) => {
     setSelectedProduct(product);
     setShowEditDialog(true);
   };
@@ -152,7 +158,7 @@ export default function AdminProducts() {
     }
   };
   // Filter and search logic
-  const filteredProducts = products.filter((product: Product) => {
+  const filteredProducts = products.filter((product: ProductWithStock) => {
     // Apply category filter
     const categoryMatch = filter === 'all' || product.category === filter;
     
@@ -237,7 +243,7 @@ export default function AdminProducts() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredProducts.map((product: Product) => (
+                    {filteredProducts.map((product: ProductWithStock) => (
                       <TableRow key={product.id}>
                         <TableCell className="font-medium">
                           <div className="flex items-center space-x-2">
@@ -260,10 +266,10 @@ export default function AdminProducts() {
                         <TableCell className="capitalize">{product.petType}</TableCell>
                         <TableCell>${product.price}</TableCell>
                         <TableCell>
-                          {product.stock ?? 0 > 10 ? (
-                            <span>{product.stock ?? 0}</span>
-                          ) : (product.stock ?? 0) > 0 ? (
-                            <Badge variant="secondary">Low: {product.stock ?? 0}</Badge>
+                          {product.stock > 10 ? (
+                            <span>{product.stock}</span>
+                          ) : product.stock > 0 ? (
+                            <Badge variant="secondary">Low: {product.stock}</Badge>
                           ) : (
                             <Badge variant="destructive">Out of stock</Badge>
                           )}
@@ -348,7 +354,7 @@ export default function AdminProducts() {
                   <label className="text-sm font-medium">Stock</label>
                   <Input 
                     type="number" 
-                    defaultValue={selectedProduct.stock ?? 0} 
+                    defaultValue={selectedProduct.stock} 
                     onChange={handleStockChange}
                   />
                 </div>

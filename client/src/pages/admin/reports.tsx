@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchReports, fetchReport, updateReport } from '@/lib/adminApi';
+import { fetchReports, updateReport } from '@/lib/adminApi';
 import { AdminLayout } from '@/components/ui/admin-layout';
 import { useToast } from '@/hooks/use-toast';
 import { 

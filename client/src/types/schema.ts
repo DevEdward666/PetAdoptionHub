@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 export interface Pet {
   id: number;
   name: string;
@@ -36,10 +38,38 @@ export interface Admin {
   id: number;
   name: string;
   email: string;
+  role: string | null;
+  username: string;
+  password: string;
+  createdAt: Date | null;
+  updatedAt: Date | null;
+}
+
+export interface InsertAdmin {
+  name: string;
+  email: string;
   role: string;
   username: string;
-  createdAt: string;
+  password: string;
 }
+
+export interface AdminLogin {
+  username: string;
+  password: string;
+}
+
+export const insertAdminSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email address"),
+  role: z.enum(["admin", "super_admin"]),
+  username: z.string().min(3, "Username must be at least 3 characters"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+export const adminLoginSchema = z.object({
+  username: z.string().min(3, "Username must be at least 3 characters"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
 
 export interface Report {
   id: number;
@@ -63,4 +93,7 @@ export interface Product {
   category: string;
   createdAt: string;
   updatedAt: string;
+  stock: number;
+  isAvailable: boolean;
+  petType: string;
 } 

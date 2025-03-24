@@ -1,5 +1,4 @@
-import { Owner } from "../../types/schema";
-import { Pet } from "@shared/schema";
+import { Owner, Pet } from "@shared/schema";
 
 interface OwnerCardProps {
   owner: Owner;
