@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ShowcaseCard } from "@/components/ui/showcase-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { Pet } from "@shared/schema";
+import { Pet } from "../types/schema";
 import { useToast } from "@/hooks/use-toast";
 import { IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonPage, IonTitle, IonToolbar } from "@ionic/react";
 import { pawOutline, searchOutline, notificationsOutline } from "ionicons/icons";

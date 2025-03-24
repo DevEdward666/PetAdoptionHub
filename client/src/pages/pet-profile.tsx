@@ -12,9 +12,6 @@ import {
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
-  IonGrid,
-  IonRow,
-  IonCol,
   IonChip,
   IonLabel,
   IonList,
@@ -27,24 +24,18 @@ import {
 import { 
   heartOutline, 
   heart,
-  callOutline,
   mailOutline,
   locationOutline,
   calendarOutline,
   pawOutline,
-  peopleOutline,
   scaleOutline,
   maleOutline,
   femaleOutline,
-  checkmarkCircleOutline,
-  closeCircleOutline,
   shareOutline,
-  flagOutline,
-  imagesOutline,
-  mapOutline
+  flagOutline
 } from 'ionicons/icons';
 import { useEffect, useState } from 'react';
-import { Pet, Owner } from '@shared/schema';
+import { Pet, Owner } from '../types/schema';
 import { useToast } from '@/hooks/use-toast';
 
 export default function PetProfile() {
