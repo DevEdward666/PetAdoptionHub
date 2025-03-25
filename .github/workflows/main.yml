@@ -31,6 +31,8 @@ jobs:
           cd server
           npm install drizzle-orm drizzle-zod zod
           cd ..
+          npm install esbuild
+
           cd client && npm install && npm run build && cd .. && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
 
   server:
