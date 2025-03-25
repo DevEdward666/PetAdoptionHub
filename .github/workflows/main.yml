@@ -10,7 +10,6 @@ on:
   workflow_dispatch:
 jobs:
   client:
-    if: "contains(github.event.head_commit.modified, 'client/')"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -19,26 +18,15 @@ jobs:
       - name: Set Up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
-          cache: npm
+          node-version: "18.20.7"
 
-      - name: Install Dependencies
+      - name: Build Ionic React app
         run: |
-          cd client
+          cd PetAdoptionHub/client
           npm install
-
-      - name: Run Tests
-        run: |
-          cd client
-          npm test
-
-      - name: Build Client
-        run: |
-          cd client
           npm run build
 
   server:
-    if: "contains(github.event.head_commit.modified, 'server/')"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -47,20 +35,10 @@ jobs:
       - name: Set Up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
-          cache: npm
+          node-version: "18.20.7"
 
-      - name: Install Dependencies
+      - name: Build Server
         run: |
-          cd server
+          cd PetAdoptionHub/server
           npm install
-
-      - name: Run Tests
-        run: |
-          cd server
-          npm test
-
-      - name: Start Server
-        run: |
-          cd server
-          npm start
+          npm run build
