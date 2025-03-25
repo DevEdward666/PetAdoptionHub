@@ -21,24 +21,5 @@ jobs:
           node-version: "18.20.7"
 
       - name: Build Ionic React app
-        run: |
-          cd client
-          npm install
-          npm run build
+        run: cd client && npm install && npm run build && cd .. && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
 
-  server:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-
-      - name: Set Up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: "18.20.7"
-
-      - name: Build Server
-        run: |
-          cd server
-          npm install
-          npm run build
