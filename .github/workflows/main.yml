@@ -34,10 +34,9 @@ jobs:
            npm install drizzle-orm drizzle-zod zod
            cd ..
            cd client && npm install && npm run build && cd .. && npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+           npm run build
            cd ..
-           mkdir -p dist
-      - name: Ensure destination directory exists
-        run: mkdir -p dist
+           mkdir -p client/dist
       - name: Copy Build Files
         run: cp -r client/dist/* dist/
         
@@ -48,3 +47,4 @@ jobs:
           vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
           vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
           vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+
