@@ -37,9 +37,9 @@ jobs:
            cd ..
            mkdir -p dist
       - name: Ensure destination directory exists
-        run: mkdir -p destination
-      - name: Copy files
-        run: cp -r client/dist/* destination/
+        run: mkdir -p dist
+      - name: Copy Build Files
+        run: cp -r client/dist/* dist/
         
       - name: Deploy to Vercel
         run: |
