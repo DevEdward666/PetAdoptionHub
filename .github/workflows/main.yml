@@ -36,6 +36,8 @@ jobs:
            cd client && npm install && npm run build && cd .. && npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
            cd ..
            mkdir -p dist
+      - name: Ensure destination directory exists
+        run: mkdir -p destination
       - name: Copy files
         run: cp -r client/dist/* destination/
         
