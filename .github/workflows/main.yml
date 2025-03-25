@@ -31,22 +31,4 @@ jobs:
           cd server
           npm install drizzle-orm drizzle-zod zod
           cd ..
-          cd client && npm install && npm run build && cd .. && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
-
-  server:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-
-      - name: Set Up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: "18.20.7"
-
-      - name: Install Dependencies and Build Server
-        run: |
-          rm -rf node_modules package-lock.json
-          npm cache clean --force
-          npm ci
-          npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+          cd client && npm install && npm run build && cd .. && npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
