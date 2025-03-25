@@ -25,19 +25,15 @@ jobs:
 
       - name: Install Dependencies & Build Client
         run: |
-          rm -rf node_modules package-lock.json
-          npm cache clean --force
-          cd client
-          npm install
-          npm run build
-          cd ..
-
-      - name: Install Dependencies & Build Server
-        run: |
-          cd server
-          npm install
-          cd ..
-          npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+           rm -rf node_modules package-lock.json
+           npm cache clean --force
+           cd client
+           npm install esbuild embla-carousel-react recharts cmdk vaul input-otp react-resizable-panels drizzle-orm drizzle-zod zod
+           cd ..
+           cd server
+           npm install drizzle-orm drizzle-zod zod
+           cd ..
+           cd client && npm install && npm run build && cd .. && npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
 
       - name: Deploy to Vercel
         run: |
