@@ -37,13 +37,14 @@ jobs:
            cd ..
            mkdir -p dist
       - name: Ensure destination directory exists
-        run: mkdir -p destination
-      - name: Copy files
-        run: cp -r client/dist/* destination/
+        run: mkdir -p dist
+      - name: Copy Build Files
+        run: cp -r client/dist/* dist/
         
       - name: Deploy to Vercel
         run: |
           npm install --global vercel
+          cd client
           vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
           vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
           vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
