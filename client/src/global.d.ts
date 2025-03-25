@@ -1,0 +1,9 @@
+declare module "embla-carousel-react";
+declare module "recharts";
+declare module "cmdk";
+declare module "vaul";
+declare module "input-otp";
+declare module "react-resizable-panels";
+declare module "drizzle-orm/pg-core";
+declare module "drizzle-zod";
+declare module "zod";
