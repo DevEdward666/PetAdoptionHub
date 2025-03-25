@@ -1,0 +1,44 @@
+name: CI/CD for Client and Server
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+jobs:
+  client:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set Up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18.20.7"
+
+      - name: Build Ionic React app
+        run: |
+          cd client
+          npm install
+          npm run build
+
+  server:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set Up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18.20.7"
+
+      - name: Build Server
+        run: |
+          cd server
+          npm install
+          npm run build
