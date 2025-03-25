@@ -34,7 +34,9 @@ jobs:
            npm install drizzle-orm drizzle-zod zod
            cd ..
            cd client && npm install && npm run build && cd .. && npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
-
+           cd ..
+           mkdir -p dist
+           cp -r client/dist/* dist/
       - name: Deploy to Vercel
         run: |
           npm install --global vercel
