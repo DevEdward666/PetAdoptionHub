@@ -10,8 +10,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  client:
+  deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -19,16 +20,28 @@ jobs:
       - name: Set Up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "18.20.7"
+          node-version: "18"
+          cache: "npm"
 
-      - name: Clean Install and Build Ionic React App
+      - name: Install Dependencies & Build Client
         run: |
           rm -rf node_modules package-lock.json
           npm cache clean --force
           cd client
-          npm install esbuild embla-carousel-react recharts cmdk vaul input-otp react-resizable-panels drizzle-orm drizzle-zod zod
+          npm install
+          npm run build
           cd ..
+
+      - name: Install Dependencies & Build Server
+        run: |
           cd server
-          npm install drizzle-orm drizzle-zod zod
+          npm install
           cd ..
-          cd client && npm install && npm run build && cd .. && npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+          npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+
+      - name: Deploy to Vercel
+        run: |
+          npm install --global vercel
+          vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+          vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+          vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
