@@ -22,7 +22,7 @@ jobs:
 
       - name: Build Ionic React app
         run: |
-          cd PetAdoptionHub/client
+          cd client
           npm install
           npm run build
 
@@ -39,6 +39,6 @@ jobs:
 
       - name: Build Server
         run: |
-          cd PetAdoptionHub/server
+          cd server
           npm install
           npm run build
